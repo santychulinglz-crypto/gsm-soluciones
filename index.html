@@ -1,0 +1,2255 @@
+<title>GSM Soluciones</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Mostrador de taller en cristal azul marino: banda de marca, indicadores, fichas de reparación y panel lateral para ticket, mensaje y proveedores. */
+:root{
+  /* galaxia GSM */
+  --bg:#070a1f; --bg-a:rgba(120,90,255,.3); --bg-b:rgba(40,120,255,.25); --dot:rgba(255,255,255,.0);
+  --surface:#12163a; --surface2:#1a1f4d; --field:#0d1130; --sheet:rgba(12,15,44,.985);
+  --ink:#eaeeff; --muted:#a3acd6; --line:rgba(150,160,230,.28);
+  --accent:#8ab4ff; --accent-ink:#0a0d2a; --brand:#7c8cff; --brand-2:#b78bff;
+  --pri-a:#6b7cff; --pri-b:#b05cf0; --scrim:rgba(2,3,16,.66);
+  --glass:rgba(24,28,76,.5); --glass-strong:rgba(40,46,110,.66); --glass-bd:rgba(170,180,255,.2);
+  --glass-hi:rgba(255,255,255,.14); --glass-sh:0 8px 24px rgba(0,0,20,.45);
+  --ok:#7ef0b0; --ok-bg:rgba(40,190,120,.2); --warn:#ffd36e; --warn-bg:rgba(240,180,50,.18); --bad:#ff9aa2; --bad-bg:rgba(240,70,90,.2);
+  --info:#9cc4ff; --info-bg:rgba(70,130,255,.22); --idle:#b9c2e6; --idle-bg:rgba(150,160,220,.18);
+  --font-display:'Manrope',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html.panel-open{overflow:hidden}
+body{
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(900px 560px at 12% 8%,rgba(120,70,255,.38),transparent 65%),
+    radial-gradient(800px 600px at 92% 30%,rgba(30,110,255,.30),transparent 65%),
+    radial-gradient(700px 500px at 55% 105%,rgba(210,70,190,.26),transparent 65%),
+    linear-gradient(170deg,#060818 0%,#0b1033 50%,#150d38 100%);
+  background-attachment:fixed;
+  color:var(--ink); font:14px/1.5 var(--font-body);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0; min-height:100%;
+}
+.wrap{max-width:1080px; margin:0 auto; padding-block:22px 56px; display:flex; flex-direction:column; gap:18px}
+.mono{font-family:var(--font-mono); font-size:12.5px; letter-spacing:.01em}
+.muted{color:var(--muted)}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* botones de cristal */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; text-align:center;
+  border:1px solid var(--glass-bd); color:var(--ink); cursor:pointer;
+  background:linear-gradient(180deg,var(--glass-strong),var(--glass));
+  -webkit-backdrop-filter:blur(12px) saturate(1.5); backdrop-filter:blur(12px) saturate(1.5);
+  box-shadow:inset 0 1px 0 var(--glass-hi), var(--glass-sh);
+  padding:9px 15px; border-radius:10px; font-weight:600; line-height:1.2;
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.btn:hover{filter:brightness(1.04); transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.primary{
+  color:#fff; border-color:rgba(255,255,255,.38);
+  background:linear-gradient(165deg,#3f5fd0 0%,#a64fb4 62%,#d9a46c 125%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.38), 0 10px 24px rgba(120,80,190,.32);
+}
+.btn.danger{color:var(--bad); background:linear-gradient(180deg,var(--bad-bg),var(--glass)); border-color:var(--bad)}
+.btn.small{padding:6px 11px; font-size:13px; border-radius:9px}
+.btn.big{padding:12px 20px; min-height:46px; font-size:15px}
+.btn.ghost{background:transparent; border-color:transparent; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; color:var(--muted)}
+.btn.ghost:hover{background:var(--glass); color:var(--ink)}
+.btn[aria-disabled="true"],.btn:disabled{opacity:.5; pointer-events:none}
+
+/* banda de marca */
+.top{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 20px;
+  background:
+    radial-gradient(420px 160px at 90% -20%, rgba(255,255,255,.20), transparent 70%),
+    linear-gradient(135deg,#0f1a3c 0%,#2b3a86 55%,#6a3f9a 120%);
+  color:#fff; border-radius:16px; padding:16px 20px;
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25), 0 14px 34px rgba(20,38,70,.30);
+}
+.brand{display:flex; align-items:center; gap:14px; min-width:0}
+.logo{width:62px; height:62px; border-radius:50%; background:#fff; padding:3px; flex:none; object-fit:contain; box-shadow:0 0 0 2px rgba(255,255,255,.4), 0 6px 14px rgba(0,0,0,.25)}
+.brand h1{font:800 25px/1.1 var(--font-display); margin:0; letter-spacing:.02em; text-wrap:balance}
+.brand p{margin:4px 0 0; color:rgba(255,255,255,.8); font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:500}
+.top-actions{display:flex; flex-wrap:wrap; gap:8px}
+.top .btn{background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.10)); border-color:rgba(255,255,255,.4); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 6px 14px rgba(8,18,40,.25)}
+.top .btn.primary{background:linear-gradient(180deg,#ffffff,#dfe5fa); border-color:#fff; color:#1d2a63; box-shadow:inset 0 1px 0 #fff, 0 8px 18px rgba(8,18,40,.3)}
+
+/* indicadores */
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:10px}
+.stat{
+  background:linear-gradient(180deg,var(--glass-strong),var(--glass)); border:1px solid var(--glass-bd);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 0 var(--glass-hi), var(--glass-sh);
+  border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:2px; min-width:0;
+}
+.stat span.l{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600}
+.stat span.v{font:800 24px/1.15 var(--font-display); font-variant-numeric:tabular-nums}
+.stat.alert span.v{color:var(--bad)}
+
+/* herramientas */
+.tools{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.search{flex:1 1 260px; min-width:0}
+input,textarea,select{
+  font:inherit; color:var(--ink); background:var(--field); border:1px solid var(--line);
+  border-radius:10px; padding:10px 12px; width:100%; min-width:0;
+}
+textarea{resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--muted); opacity:.8}
+.search input{background:linear-gradient(180deg,var(--glass-strong),var(--glass)); border-color:var(--glass-bd); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); box-shadow:inset 0 1px 0 var(--glass-hi)}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{
+  border:1px solid var(--glass-bd); border-radius:999px; padding:6px 13px; cursor:pointer; font-size:13px; font-weight:600; color:var(--ink);
+  background:linear-gradient(180deg,var(--glass-strong),var(--glass)); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 var(--glass-hi);
+}
+.chip:hover{filter:brightness(1.05)}
+.chip.on{color:#fff; border-color:rgba(255,255,255,.35); background:linear-gradient(180deg,var(--pri-a),var(--pri-b)); box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 4px 12px rgba(28,50,90,.28)}
+.chip .n{opacity:.7; margin-left:5px; font-variant-numeric:tabular-nums}
+
+/* lista */
+.list{display:flex; flex-direction:column; gap:10px}
+.ticket{
+  display:grid; width:100%; text-align:left; cursor:pointer;
+  grid-template-columns:96px minmax(0,1.1fr) minmax(0,1.5fr) minmax(0,1.1fr) 96px;
+  gap:6px 16px; align-items:start;
+  background:linear-gradient(180deg,var(--glass-strong),var(--glass)); border:1px solid var(--glass-bd); border-radius:14px; padding:13px 16px;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 0 var(--glass-hi), var(--glass-sh);
+  transition:transform .12s ease, border-color .12s ease;
+}
+.ticket:hover{border-color:var(--accent); transform:translateY(-1px)}
+.ticket>span{display:flex; flex-direction:column; gap:2px; min-width:0}
+.ticket strong{font-weight:600; overflow-wrap:anywhere}
+.clamp{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.t-estado .row{display:flex; flex-wrap:wrap; gap:4px}
+.t-saldo{text-align:right; align-items:flex-end!important; font-variant-numeric:tabular-nums}
+.pill{display:inline-flex; align-items:center; gap:6px; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap}
+.pill::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor}
+.pill.info{color:var(--info); background:var(--info-bg)}
+.pill.warn{color:var(--warn); background:var(--warn-bg)}
+.pill.ok{color:var(--ok); background:var(--ok-bg)}
+.pill.bad{color:var(--bad); background:var(--bad-bg)}
+.pill.idle{color:var(--idle); background:var(--idle-bg)}
+.empty{
+  border:1px dashed var(--line); border-radius:14px; padding:36px 20px; text-align:center; color:var(--muted);
+  background:var(--glass); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+.empty strong{display:block; color:var(--ink); font:700 16px var(--font-display); margin-bottom:4px}
+.note{background:var(--warn-bg); color:var(--warn); border-radius:12px; padding:10px 14px; font-weight:500}
+.foot{color:var(--muted); font-size:12.5px}
+
+@media (max-width:760px){
+  .ticket{grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"folio saldo" "cliente cliente" "equipo equipo" "estado estado"}
+  .t-folio{grid-area:folio; flex-direction:row!important; gap:10px!important; align-items:baseline}
+  .t-cliente{grid-area:cliente}
+  .t-equipo{grid-area:equipo}
+  .t-estado{grid-area:estado}
+  .t-saldo{grid-area:saldo}
+}
+
+/* acceso y usuarios */
+.who{color:rgba(255,255,255,.88); font-size:13px; font-weight:500; margin-right:4px; align-self:center}
+.loc{flex:0 1 210px; min-width:150px}
+.login{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto}
+.login-card{
+  width:min(420px,100%); display:flex; flex-direction:column; gap:14px; text-align:left;
+  background:linear-gradient(180deg,var(--glass-strong),var(--glass)); border:1px solid var(--glass-bd);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4); backdrop-filter:blur(16px) saturate(1.4);
+  box-shadow:inset 0 1px 0 var(--glass-hi), 0 24px 60px rgba(14,28,56,.28); border-radius:22px; padding:28px 26px;
+}
+.login-card .cab{display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center}
+.login-card .lg-logo{width:84px; height:84px; border-radius:50%; background:#fff; padding:4px; box-shadow:0 0 0 2px rgba(255,255,255,.7), 0 8px 18px rgba(14,28,56,.25)}
+.login-card h1{font:800 22px/1.15 var(--font-display); margin:6px 0 0}
+.login-card h2{font:700 15px/1.3 var(--font-display); margin:0; color:var(--muted); font-weight:600}
+.login-card .link{background:none; border:0; color:var(--muted); text-decoration:underline; cursor:pointer; font-size:12.5px; padding:4px; align-self:center}
+/* acceso: panel de marca + formulario */
+.login-card{
+  width:min(920px,100%); display:block; padding:0; gap:0; overflow:hidden; border-radius:28px;
+  background:var(--sheet); border:1px solid var(--glass-bd);
+  box-shadow:0 30px 80px rgba(12,26,52,.38), inset 0 1px 0 var(--glass-hi);
+}
+.lg-wrap{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); min-height:520px}
+.lg-brand{
+  position:relative; overflow:hidden; color:#fff; padding:34px 30px; display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+  background:
+    radial-gradient(420px 300px at 110% -10%, rgba(255,255,255,.22), transparent 65%),
+    radial-gradient(360px 280px at -20% 110%, rgba(120,170,235,.35), transparent 65%),
+    linear-gradient(155deg,var(--brand) 0%,var(--brand-2) 100%);
+}
+.lg-brand::before,.lg-brand::after{content:""; position:absolute; border-radius:50%; border:1px solid rgba(255,255,255,.16); pointer-events:none}
+.lg-brand::before{width:340px; height:340px; right:-120px; top:-110px}
+.lg-brand::after{width:260px; height:260px; left:-90px; bottom:-90px}
+.lg-orb{width:116px; height:116px; border-radius:50%; background:#fff; padding:5px; box-shadow:0 0 0 3px rgba(255,255,255,.35), 0 14px 30px rgba(6,16,36,.4); position:relative; z-index:1}
+.lg-orb img{width:100%; height:100%; border-radius:50%; object-fit:contain; display:block}
+.lg-name{font:800 28px/1.1 var(--font-display); letter-spacing:.02em; margin-top:14px; position:relative; z-index:1}
+.lg-tag{font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.8); position:relative; z-index:1}
+.lg-time{margin-top:auto; padding-top:26px; display:flex; align-items:center; gap:14px; position:relative; z-index:1}
+.lg-time svg{width:44px; height:44px; flex:none}
+.lg-hora{font:800 30px/1 var(--font-display); font-variant-numeric:tabular-nums}
+.lg-fecha{font-size:13px; color:rgba(255,255,255,.85); margin-top:4px}
+.lg-form{padding:38px 36px; display:flex; flex-direction:column; justify-content:center; gap:14px; min-width:0}
+.lg-head h2{font:800 30px/1.15 var(--font-display); margin:0; color:var(--ink); text-wrap:balance}
+.lg-head p{margin:6px 0 0; color:var(--muted); font-size:15px}
+.lg-form form{display:flex; flex-direction:column; gap:14px}
+.lg-form select,.lg-form input{padding:13px 14px; border-radius:12px; font-size:15px}
+.pinbox{position:relative}
+.pinbox input{padding-right:84px}
+.pinbox input:not(:placeholder-shown){letter-spacing:.12em}
+.pinbox button{position:absolute; right:8px; top:50%; transform:translateY(-50%); border:0; background:transparent; color:var(--accent); font-weight:600; font-size:13px; cursor:pointer; padding:6px 8px; border-radius:8px}
+.pinbox button:hover{background:var(--surface2)}
+.lg-form .link{background:none; border:0; color:var(--muted); text-decoration:underline; cursor:pointer; font-size:13px; padding:4px; align-self:flex-start}
+@media (max-width:760px){
+  .lg-wrap{grid-template-columns:1fr; min-height:0}
+  .lg-brand{padding:22px 22px 18px; flex-direction:row; flex-wrap:wrap; align-items:center; gap:4px 14px}
+  .lg-orb{width:68px; height:68px; padding:3px}
+  .lg-name{font-size:21px; margin-top:0}
+  .lg-time{margin-top:0; padding-top:10px; flex:1 1 100%}
+  .lg-hora{font-size:22px}
+  .lg-time svg{width:32px; height:32px}
+  .lg-form{padding:26px 22px 28px}
+  .lg-head h2{font-size:25px}
+}
+/* ===== acceso v2: pantalla oscura a todo lo ancho + paisaje nocturno ===== */
+.login{padding:0; align-items:stretch; background:#05070d; --ink:#e8ecf5; --muted:#9aa6bd; color:var(--ink); color-scheme:dark}
+.login-card{width:100%; max-width:none; min-height:100%; border:0; border-radius:0; background:transparent; box-shadow:none; overflow:visible}
+.lg-wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr); min-height:100vh; min-height:100dvh}
+.lg-form{padding:clamp(28px,6vh,64px) clamp(24px,7vw,110px); justify-content:center; gap:18px; max-width:640px; width:100%; justify-self:end; position:relative; z-index:2}
+.lg-mark{display:flex; align-items:center; gap:12px; margin-bottom:clamp(8px,4vh,40px)}
+.lg-mark img{width:52px; height:52px; border-radius:50%; background:#fff; padding:2px; object-fit:contain; box-shadow:0 0 0 2px rgba(143,176,224,.45), 0 8px 22px rgba(0,0,0,.5)}
+.lg-mark b{font:800 17px/1.1 var(--font-display); letter-spacing:.03em}
+.lg-mark small{display:block; font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); font-weight:500; margin-top:3px}
+.lg-head h2{font-size:clamp(34px,4.4vw,52px); line-height:1.05; letter-spacing:-.01em; color:#e3e6ee}
+.lg-head p{color:var(--muted); font-size:16px; margin-top:10px}
+.lg-form label{color:#c9d1e2; font-size:13px; font-weight:500}
+.lg-form select,.lg-form input{
+  color:#eef1f8; padding:15px 18px; border-radius:16px; font-size:16px; border:1.5px solid transparent;
+  background:linear-gradient(#0f1118,#0f1118) padding-box, linear-gradient(135deg,#4a63e0,#b457b8 55%,#f0c27a) border-box;
+  transition:box-shadow .2s;
+}
+.lg-form select:focus,.lg-form input:focus{outline:none; box-shadow:0 0 0 4px rgba(120,140,255,.22)}
+.lg-form select option,.lg-form select optgroup{background:#10131c; color:#eef1f8}
+.lg-form input::placeholder{color:#5d6780}
+.pinbox button{color:#f0c27a}
+.pinbox button:hover{background:rgba(255,255,255,.07)}
+.lg-form .btn.primary{
+  border:0; border-radius:16px; padding:15px; font:700 19px/1 var(--font-display); color:#fff; margin-top:6px; cursor:pointer;
+  background:linear-gradient(165deg,#3f5fd0 0%,#a64fb4 58%,#e3b072 120%);
+  box-shadow:0 14px 30px rgba(120,80,190,.35), inset 0 1px 0 rgba(255,255,255,.35); text-shadow:0 1px 2px rgba(0,0,0,.3);
+  transition:transform .15s, filter .15s;
+}
+.lg-form .btn.primary:hover{filter:brightness(1.08); transform:translateY(-1px)}
+.lg-form .link{color:#d7ddec; align-self:flex-end; font-size:14px}
+.lg-form .err{color:#ff9aa6}
+.lg-foot{margin-top:auto; padding-top:20px; font-size:12.5px; color:#6f7a93}
+.lg-brand{padding:0; min-height:100%; background:#070a14; align-items:stretch; border-radius:0}
+.lg-brand::before,.lg-brand::after{display:none}
+.lg-scene{position:absolute; inset:0; width:100%; height:100%; display:block}
+.lg-brand::after{display:block; border:0; border-radius:0; width:auto; height:auto; left:0; top:0; right:auto; bottom:0; width:38%; background:linear-gradient(90deg,#05070d,rgba(5,7,13,0))}
+.lg-time{position:absolute; right:clamp(18px,3vw,40px); top:clamp(18px,3vh,36px); margin:0; padding:10px 16px; border-radius:16px; background:rgba(8,12,24,.45); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.14); z-index:2}
+.lg-time svg{width:34px; height:34px}
+.lg-hora{font-size:24px}
+@media (max-width:860px){
+  .lg-wrap{grid-template-columns:1fr; min-height:0}
+  .lg-brand{order:-1; height:190px; min-height:190px}
+  .lg-brand::after{width:auto; left:0; right:0; top:auto; height:55%; background:linear-gradient(0deg,#05070d,rgba(5,7,13,0))}
+  .lg-form{max-width:none; padding:18px 22px 30px; justify-self:stretch}
+  .lg-mark{margin-bottom:4px}
+  .lg-head h2{font-size:32px}
+  .lg-time{padding:6px 12px; right:12px; top:12px}
+  .lg-hora{font-size:18px} .lg-fecha{display:none}
+  .lg-time svg{width:26px; height:26px}
+}
+/* panel técnico */
+.tec-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:8px}
+.tec-grid .k{background:var(--surface2); border:1px solid var(--line); border-radius:10px; padding:8px 10px; min-width:0}
+.tec-grid .k small{display:block; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.tec-grid .k b{font:800 17px/1.25 var(--font-display); font-variant-numeric:tabular-nums}
+.tec-grid .k.pago{border-color:#7a62d6; background:linear-gradient(180deg,rgba(122,98,214,.22),rgba(122,98,214,.08))}
+.tec-grid .k input{padding:6px 8px; font-size:14px; margin-top:2px}
+.tec-fila{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 12px}
+.tec-fila .t{min-width:0}
+.tec-mini{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+/* menú lateral */
+.app{display:grid; grid-template-columns:248px minmax(0,1fr); min-height:100vh;
+  margin-left:calc(-1*max(16px,env(safe-area-inset-left,0px))); margin-right:calc(-1*max(16px,env(safe-area-inset-right,0px)))}
+.side{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto; display:flex; flex-direction:column; gap:14px; padding:18px 12px;
+  background:linear-gradient(180deg,#0a0e1c,#070a14); border-right:1px solid rgba(255,255,255,.08)}
+.side-brand{display:flex; align-items:center; gap:11px; padding:2px 6px 14px; border-bottom:1px solid rgba(255,255,255,.08)}
+.side-brand .logo{width:46px; height:46px}
+.side-brand h1{font:800 16px/1.15 var(--font-display); margin:0; color:#fff; letter-spacing:.02em}
+.side-brand p{margin:3px 0 0; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:#8d9ab8}
+.side-nav{display:flex; flex-direction:column; gap:3px}
+.nav{display:flex; align-items:center; gap:11px; width:100%; padding:10px 12px; border:0; border-radius:10px; background:transparent; color:#c4cde3; font-weight:600; font-size:14px; text-align:left; cursor:pointer; transition:background .12s,color .12s}
+.nav:hover{background:rgba(255,255,255,.07); color:#fff}
+.nav.on{background:linear-gradient(90deg,rgba(74,99,224,.34),rgba(166,79,180,.20)); color:#fff; box-shadow:inset 3px 0 0 #8da2ff}
+.nav .ic{width:18px; height:18px; flex:none}
+.side-foot{margin-top:auto; display:flex; flex-direction:column; gap:6px; padding-top:12px; border-top:1px solid rgba(255,255,255,.08)}
+.side-foot .who{color:#98a4bd; font-size:12.5px; padding:0 6px; margin:0; overflow-wrap:anywhere}
+.content{min-width:0; padding-inline:clamp(14px,2.4vw,28px)}
+.content .wrap{max-width:1180px; margin:0; padding-block:22px 56px}
+.page-head h2{font:800 28px/1.15 var(--font-display); margin:0}
+.page-head p{margin:4px 0 0; color:var(--muted)}
+.vista{display:flex; flex-direction:column; gap:18px}
+/* tarjetas de colores */
+.stat{border:0; color:#fff; box-shadow:0 10px 24px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.28)}
+.stat span.l{color:rgba(255,255,255,.86)}
+.stat.c0{background:linear-gradient(135deg,#2349d8,#3f6df0)}
+.stat.c1{background:linear-gradient(135deg,#d99a00,#f3b81f); color:#1c1400}
+.stat.c1 span.l{color:rgba(28,20,0,.75)}
+.stat.c2{background:linear-gradient(135deg,#167a49,#24a063)}
+.stat.c3{background:linear-gradient(135deg,#0a98b8,#25c4e4); color:#021b22}
+.stat.c3 span.l{color:rgba(2,27,34,.75)}
+.stat.c4{background:linear-gradient(135deg,#5b3bc4,#8a56e0)}
+.stat.alert span.v{color:#fff; text-shadow:0 0 0 #fff}
+.stat.alert{background:linear-gradient(135deg,#a3202f,#d0384a)}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr; grid-template-rows:auto 1fr; align-content:start}
+  .side{z-index:5}
+  .side-nav{scrollbar-width:none}.side-nav::-webkit-scrollbar{display:none}
+  .side{position:static; height:auto; flex-direction:column; gap:8px; padding:12px 10px}
+  .side-brand{padding-bottom:8px}
+  .side-nav{flex-direction:row; overflow-x:auto; gap:6px; padding-bottom:2px}
+  .nav{width:auto; white-space:nowrap; padding:9px 12px; border-radius:999px; background:rgba(255,255,255,.06)}
+  .nav.on{box-shadow:none}
+  .side-foot{flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:flex-start; gap:6px; margin-top:0; padding-top:8px}
+  .side-foot .who{flex:1 1 100%; padding:0 4px; overflow-wrap:normal}
+  .side-foot .nav{flex:1 1 auto; justify-content:center; font-size:13px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .side-foot .nav{width:auto}
+  .page-head h2{font-size:23px}
+}
+.credito{margin:18px 0 0; padding-top:14px; border-top:1px solid var(--line); text-align:center; font-size:12.5px; color:var(--muted); letter-spacing:.04em}
+.credito strong,.lg-foot strong{color:#b9c4e2; font-weight:700; letter-spacing:.08em}
+/* brillo celeste */
+/* galaxia */
+.galaxia{position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden}
+.galaxia::before{content:""; position:absolute; left:-20%; top:18%; width:140%; height:38%; transform:rotate(-18deg);
+  background:radial-gradient(ellipse at center,rgba(190,170,255,.34) 0%,rgba(120,100,230,.18) 38%,transparent 70%); filter:blur(22px)}
+.estrellas{position:absolute; inset:0; background-repeat:repeat}
+.estrellas.e1{background-image:
+  radial-gradient(1.8px 1.8px at 12px 18px,#fff,transparent 60%),radial-gradient(1px 1px at 70px 60px,rgba(255,255,255,.85),transparent 60%),
+  radial-gradient(1.4px 1.4px at 130px 24px,#cfe0ff,transparent 60%),radial-gradient(1px 1px at 180px 120px,#fff,transparent 60%),
+  radial-gradient(1px 1px at 40px 130px,rgba(255,255,255,.8),transparent 60%),radial-gradient(1.3px 1.3px at 110px 170px,#ffe9c9,transparent 60%);
+  background-size:210px 200px}
+.estrellas.e2{background-image:
+  radial-gradient(2.4px 2.4px at 60px 40px,#fff,transparent 60%),radial-gradient(1.2px 1.2px at 250px 150px,#d8c8ff,transparent 60%),
+  radial-gradient(2.6px 2.6px at 160px 230px,#fff,transparent 60%),radial-gradient(1.2px 1.2px at 300px 60px,#bfe3ff,transparent 60%);
+  background-size:340px 290px}
+@media (prefers-reduced-motion:no-preference){
+  .estrellas.e2{animation:brillo 4.5s ease-in-out infinite alternate}
+  .estrellas.e1{animation:brillo 7s ease-in-out infinite alternate-reverse}
+  @keyframes brillo{from{opacity:.55}to{opacity:1}}
+}
+.side .galaxia{position:absolute; z-index:0}
+.side>*:not(.galaxia){position:relative; z-index:1}
+.side{overflow:hidden; background:
+    radial-gradient(300px 240px at 100% 0%,rgba(150,110,255,.35),transparent 70%),
+    linear-gradient(185deg,#0b0f33 0%,#161247 55%,#2a1357 100%);
+  border-right:1px solid rgba(170,180,255,.22); box-shadow:8px 0 30px rgba(0,0,20,.5)}
+.side-brand{border-bottom-color:rgba(255,255,255,.35)}
+.side-brand p,.side-foot .who{color:rgba(255,255,255,.88)}
+.nav{color:rgba(255,255,255,.92)}
+.nav:hover{background:rgba(255,255,255,.18); color:#fff}
+.nav.on{background:linear-gradient(90deg,rgba(255,255,255,.34),rgba(255,255,255,.12)); color:#fff; box-shadow:inset 3px 0 0 #fff, 0 0 18px rgba(255,255,255,.35)}
+.side-foot{border-top-color:rgba(255,255,255,.35)}
+.page-head h2{color:#fff; text-shadow:0 0 18px rgba(150,130,255,.55)}
+.page-head p{color:#b4bde6}
+.credito{border-top-color:rgba(170,180,255,.25); color:#a3acd6}
+.credito strong{color:#cdd6ff}
+.stat{box-shadow:0 10px 24px rgba(10,80,160,.28), inset 0 1px 0 rgba(255,255,255,.4)}
+.ticket{box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 8px 22px rgba(0,0,20,.4)}
+.btn.primary{background:linear-gradient(165deg,#34c0fa 0%,#1a74e6 70%,#1555cf 120%); box-shadow:inset 0 1px 0 rgba(255,255,255,.55), 0 10px 22px rgba(20,100,210,.38)}
+.chip.on{background:linear-gradient(165deg,#34c0fa,#1a74e6); color:#fff; border-color:#fff}
+.tec-grid .k.pago{border-color:#1a74e6; background:linear-gradient(180deg,rgba(52,192,250,.28),rgba(26,116,230,.1))}
+@media (max-width:900px){.nav{background:rgba(255,255,255,.16)}}
+.pill.admin{color:var(--info); background:var(--info-bg)}
+.urow{display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap}
+/* panel lateral */
+.panel{position:fixed; inset:0; z-index:20; display:flex; justify-content:flex-end; background:var(--scrim); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px)}
+.sheet{
+  width:min(600px,100%); height:100%; overflow-y:auto; background:var(--sheet);
+  border-left:1px solid var(--glass-bd); box-shadow:-18px 0 40px rgba(8,16,32,.25);
+  padding-top:max(16px, env(safe-area-inset-top, 0px));
+  padding-bottom:max(24px, env(safe-area-inset-bottom, 0px));
+  padding-left:max(18px, env(safe-area-inset-left, 0px));
+  padding-right:max(18px, env(safe-area-inset-right, 0px));
+  display:flex; flex-direction:column; gap:18px;
+}
+.sheet-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px}
+.sheet-head h2{font:800 20px/1.2 var(--font-display); margin:0}
+.sheet-head .sub{color:var(--muted); margin-top:2px}
+.sec{display:flex; flex-direction:column; gap:10px}
+.sec h3{margin:0; font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); font-weight:700; padding-bottom:6px; border-bottom:1px solid var(--line)}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.campo{display:flex; flex-direction:column; gap:4px; min-width:0}
+.campo.full{grid-column:1/-1}
+.campo label{font-size:12.5px; font-weight:600; color:var(--muted)}
+.req{color:var(--bad)}
+.hint{font-size:12px; color:var(--muted); margin:0}
+.checks{display:flex; flex-wrap:wrap; gap:6px}
+.check{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:999px; padding:6px 12px 6px 9px; cursor:pointer; font-size:13px; background:var(--field)}
+.check input{width:auto; margin:0; accent-color:var(--accent)}
+.err{color:var(--bad); font-weight:600}
+.actions{display:flex; flex-wrap:wrap; gap:8px}
+.form-actions{
+  position:sticky; bottom:0; z-index:2; margin-top:18px; padding:12px 0;
+  background:var(--sheet); border-top:1px solid var(--line);
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
+}
+.form-actions .btn.primary{flex:1 1 180px}
+.form-actions .check{flex:1 1 100%; border:0; background:transparent; padding:0 0 2px}
+.form-actions .confirm-msg{flex:1 1 100%; margin:0; font-weight:600; color:var(--bad)}
+.dl{display:grid; grid-template-columns:1fr 1fr; gap:12px 16px; margin:0}
+.dl>div{min-width:0}
+.dl dt{font-size:12px; color:var(--muted); font-weight:600}
+.dl dd{margin:0; overflow-wrap:anywhere}
+.dl .full{grid-column:1/-1}
+.money{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.money.m2{grid-template-columns:repeat(2,1fr)}
+.money div{background:linear-gradient(180deg,var(--glass-strong),var(--glass)); border:1px solid var(--glass-bd); border-radius:12px; padding:10px 12px; box-shadow:inset 0 1px 0 var(--glass-hi)}
+.money span{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600}
+.money strong{font:800 18px var(--font-display); font-variant-numeric:tabular-nums}
+.hist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.hist li{display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap}
+.confirm{background:var(--bad-bg); color:var(--bad); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:10px}
+.confirm p{margin:0; font-weight:600}
+.ok-banner{background:var(--ok-bg); color:var(--ok); border-radius:12px; padding:12px 14px; font-weight:500}
+.tkprev{background:#fff; border:1px solid var(--line); border-radius:10px; overflow-x:auto; padding:8px; color:#000}
+.seg{display:flex; flex-wrap:wrap; gap:6px}
+.prov{background:linear-gradient(180deg,var(--glass-strong),var(--glass)); border:1px solid var(--glass-bd); border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:6px; box-shadow:inset 0 1px 0 var(--glass-hi)}
+.prov strong{font:700 15px var(--font-display)}
+.prov .actions{margin-top:4px}
+.preview{white-space:pre-wrap; background:var(--field); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13px; margin:0}
+#toast{
+  position:fixed; left:50%; transform:translateX(-50%); z-index:40;
+  bottom:max(20px, env(safe-area-inset-bottom, 0px));
+  background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:12px; font-weight:500;
+  max-width:calc(100% - 32px); box-shadow:0 10px 28px rgba(0,0,0,.35);
+}
+@media (max-width:520px){
+  .grid2,.dl{grid-template-columns:1fr}
+  .money strong{font-size:15px}
+  .sheet{border-left:0}
+  .brand h1{font-size:21px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .sheet{animation:entra .16s ease-out}
+  @keyframes entra{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+}
+@media (prefers-reduced-motion:reduce){
+  .btn,.ticket{transition:none}
+  .btn:hover,.ticket:hover{transform:none}
+}
+</style>
+
+<div class="app">
+  <aside class="side" id="side">
+    <div class="side-brand">
+      <img class="logo" id="logoImg" alt="Logo de GSM Soluciones" width="46" height="46">
+      <div><h1>GSM Soluciones</h1><p>Control de reparaciones</p></div>
+    </div>
+    <nav class="side-nav" aria-label="Menú principal">
+      <button type="button" class="nav on" id="navDash" data-action="ir" data-val="dash"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Dashboard</span></button>
+      <button type="button" class="nav" data-action="nuevo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Nuevo equipo</span></button>
+      <button type="button" class="nav" id="navGar" data-action="ir" data-val="gar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span>Garantías</span></button>
+      <button type="button" class="nav" id="navPed" data-action="ir" data-val="ped"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg><span>Piezas y pedidos</span></button>
+      <button type="button" class="nav" id="btnTec" data-action="tecnico" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span>Panel técnico</span></button>
+      <button type="button" class="nav" id="btnProvs" data-action="provs" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg><span>Proveedores</span></button>
+      <button type="button" class="nav" id="btnAdmin" data-action="admin" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 5.5a3 3 0 0 1 0 5.8M21 20c0-2.6-1.6-4.8-4-5.6"/></svg><span>Administrar</span></button>
+      <button type="button" class="nav" id="btnExportar" data-action="exportar" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M4 20h16"/></svg><span>Exportar a CSV</span></button>
+    </nav>
+    <div class="side-foot">
+      <span class="who" id="who"></span>
+      <button type="button" class="nav" id="btnPass" data-action="mipass" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Cambiar mi contraseña</span></button>
+      <button type="button" class="nav" id="btnSalir" data-action="salir" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg><span>Cerrar sesión</span></button>
+    </div>
+  </aside>
+  <div class="content"><div class="wrap">
+    <div class="page-head"><h2 id="vistaTitulo">Dashboard</h2><p id="vistaSub"></p></div>
+    <div id="aviso"></div>
+    <div id="vDash" class="vista">
+      <section class="stats" id="stats" aria-label="Resumen del taller"></section>
+      <div class="tools">
+        <div class="search"><input id="buscar" type="search" placeholder="Buscar por nombre, teléfono, modelo, IMEI o folio" aria-label="Buscar equipo" autocomplete="off"></div>
+        <div class="loc"><select id="selLocal" aria-label="Local"></select></div>
+        <div class="chips" id="filtros" role="group" aria-label="Filtrar por situación"></div>
+      </div>
+      <main class="list" id="lista" aria-live="polite"></main>
+      <p class="foot" id="pie"></p>
+    </div>
+    <div id="vTec" class="vista" hidden></div>
+    <div id="vGar" class="vista" hidden></div>
+    <div id="vPed" class="vista" hidden></div>
+    <p class="credito">Desarrollado por <strong>SYRAM.COM</strong></p>
+  </div></div>
+</div>
+
+<div class="panel" id="panel" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="panelTitulo"></div>
+</div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<div class="login" id="login"><div class="login-card" id="loginCard"></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+var NEGOCIO='GSM Soluciones', LEMA='Reparación de celulares';
+var LOGO='data:image/jpeg;base64,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';
+var TERMINOS=['Presenta este ticket para recoger tu equipo.','La garantía cubre únicamente la reparación realizada.','Revisa tu equipo al recibirlo.'];
+
+var ESTATUS=['Recibido','En diagnóstico','Esperando refacción','En reparación','Listo para entrega','Entregado','Sin reparación (devuelto)'];
+var TONO={'Recibido':'info','En diagnóstico':'info','Esperando refacción':'warn','En reparación':'warn','Listo para entrega':'ok','Entregado':'idle','Sin reparación (devuelto)':'idle'};
+var ABIERTOS=ESTATUS.slice(0,5);
+var SALIDAS=['Entregado','Sin reparación (devuelto)'];
+var ACCESORIOS=['SIM','Memoria SD','Funda','Cargador','Batería','Tapa trasera'];
+var MARCAS=['Samsung','Motorola','Xiaomi','Redmi','Poco','Huawei','Honor','ZTE','Oppo','Realme','Vivo','Infinix','Tecno','Nokia','LG','Alcatel','Google Pixel','OnePlus','Lanix','Blu'];
+var SERVICIOS=['Cambio de pantalla','Pin de carga','Batería','Software / actualización','Liberación / desbloqueo','Cuenta Google (FRP)','Tapa trasera','Limpieza por humedad','Bocina / micrófono','Cámara','Diagnóstico'];
+var FILTROS=[['taller','En taller'],['atrasados','Atrasados'],['listos','Listos'],['salidas','Entregados'],['todos','Todos']];
+
+var equipos=[], provs=[], filtro='taller', busqueda='', store=null, pstore=null, descargas=null;
+var verTicket=false, formSucio=false, formNuevo=true, recien=false, provDel=null, msgDraft={key:'',text:''};
+var modo=null, selId=null, confirmando=false, cargando=true, errorCarga='', loadT=null;
+var pref={auto:true,fmt:'80'};
+try{var pr=JSON.parse(localStorage.getItem('gsm_pref_v1')||'null');if(pr){pref.auto=pr.auto!==false;pref.fmt=pr.fmt==='carta'?'carta':'80';}}catch(e){}
+function guardarPref(){try{localStorage.setItem('gsm_pref_v1',JSON.stringify(pref));}catch(e){}}
+
+function $(s,r){return (r||document).querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function hoy(){return ymd(new Date())}
+function parse(s){if(!s)return null;var p=String(s).split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function addDias(s,n){var d=parse(s);if(!d)return '';d.setDate(d.getDate()+n);return ymd(d)}
+function diffDias(a,b){var x=parse(a),y=parse(b);if(!x||!y)return null;return Math.round((y-x)/86400000)}
+function fmtFecha(s){
+  var d=parse(s);if(!d)return '—';
+  var o={day:'numeric',month:'short'};
+  if(d.getFullYear()!==new Date().getFullYear())o.year='numeric';
+  return d.toLocaleDateString('es-MX',o);
+}
+function fmtHora(iso){
+  var d=new Date(iso);if(isNaN(d))return '';
+  return d.toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+function mx(n){return Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:2})}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
+function esAbierto(e){return ABIERTOS.indexOf(e.estatus)>-1}
+function esAtrasado(e){return esAbierto(e)&&!!e.fechaPrometida&&e.fechaPrometida<hoy()}
+function saldo(e){return e.pagado?0:Math.max(0,(+e.costo||0)-(+e.anticipo||0))}
+function ganancia(e){return (+e.costo||0)-(+e.costoRefaccion||0)}
+function nombreEq(e){return (e.marca+' '+e.modelo).trim()}
+function find(id){for(var i=0;i<equipos.length;i++)if(equipos[i].id===id)return equipos[i];return null}
+function vis(){return localFiltro==='todos'?equipos:equipos.filter(function(e){return e.localId===localFiltro;});}
+function nomLocal(e){var l=findLocal(e.localId);return l?l.nombre:(e.localNombre||'');}
+function findProv(id){for(var i=0;i<provs.length;i++)if(provs[i].id===id)return provs[i];return null}
+
+/* ---------- WhatsApp ---------- */
+function telWA(t){
+  var d=String(t||'').replace(/\D/g,'');
+  if(d.length===10)return '52'+d;
+  if(d.length>=11&&d.length<=13)return d;
+  return '';
+}
+function linkWA(tel,texto){
+  var n=telWA(tel);
+  return n?'https://wa.me/'+n+'?text='+encodeURIComponent(texto):'';
+}
+
+/* ---------- mensajes automáticos ---------- */
+function saludoHora(){var h=new Date().getHours();return h<12?'Buenos días':(h<19?'Buenas tardes':'Buenas noches');}
+function msgRef(e,m){return saludoHora()+'. Le escribimos de *'+NEGOCIO+'* como contacto de referencia de *'+e.cliente+'*, porque no logramos comunicarnos con '+(e.cliente?'su número':'el cliente')+'. Le agradecemos que le haga llegar este aviso:\n\n'+m;}
+function linkConsulta(e){
+  var l=localDe(e),tel=l?telWA(l.telefono):'';if(!tel)return '';
+  return 'https://wa.me/'+tel+'?text='+encodeURIComponent('Hola, quiero consultar el estado de mi reparación.\nFolio: '+e.id+'\nEquipo: '+nombreEq(e)+'\nCliente: '+e.cliente);
+}
+function qrMatriz(texto){
+  try{if(typeof qrcode!=='function')return null;var q=qrcode(0,'M');q.addData(texto);q.make();return q;}catch(x){return null;}
+}
+function qrSVG(texto){
+  var q=qrMatriz(texto);if(!q)return '';
+  var n=q.getModuleCount(),d='';
+  for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))d+='M'+(c+1)+' '+(r+1)+'h1v1h-1z';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(n+2)+' '+(n+2)+'" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="'+d+'" fill="#000"/></svg>';
+}
+function localDe(e){return e?findLocal(e.localId):null;}
+function firmaMsg(e){
+  var l=localDe(e),t='*'+NEGOCIO+'*'+(e&&nomLocal(e)?' · '+nomLocal(e):'')+'\n'+LEMA;
+  if(l){
+    if(l.direccion)t+='\n📍 '+l.direccion;
+    if(l.telefono)t+='\n📞 '+l.telefono;
+    if(l.horario)t+='\n🕘 '+l.horario;
+  }
+  return t;
+}
+function resumenOrden(e,conCobro){
+  var l=['📋 *Resumen de tu orden*','• Folio: *'+e.id+'*','• Equipo: '+nombreEq(e)];
+  if(e.falla)l.push('• Falla reportada: '+e.falla);
+  if(e.servicio)l.push('• Servicio: '+e.servicio);
+  if(e.fechaPrometida&&esAbierto(e))l.push('• Entrega estimada: '+fmtFecha(e.fechaPrometida));
+  if(conCobro&&+e.costo>0){
+    l.push('','💰 *Costo:* '+mx(e.costo)+(+e.anticipo>0?'  ·  *Anticipo:* '+mx(e.anticipo):'')+'  ·  *Saldo:* '+mx(saldo(e)));
+  }
+  return l.join('\n');
+}
+function mensajeCliente(e){
+  var n=(e.cliente||'').trim().split(/\s+/)[0]||'',eq=nombreEq(e),s=saldo(e),g=+e.garantiaDias||0;
+  var hola=saludoHora()+', '+n+'. Te saludamos de *'+NEGOCIO+'*.';
+  var cierre='\n\nCualquier duda, escríbenos por aquí con tu folio *'+e.id+'*. Estamos para ayudarte.\n\n'+firmaMsg(e);
+  switch(e.estatus){
+    case 'Recibido':
+      return hola+' 👋\n\nGracias por confiarnos tu equipo. Ya quedó registrado y en buenas manos.\n\n'+resumenOrden(e,true)+
+        '\n\nVamos a revisarlo con todo cuidado y te avisaremos por este medio de cada avance. Guarda tu folio para recogerlo.'+
+        '\n\n'+firmaMsg(e);
+    case 'En diagnóstico':
+      return hola+' 🔍\n\nTu *'+eq+'* ya está en revisión con nuestro técnico. Estamos identificando con exactitud la falla para darte un diagnóstico claro y un costo justo.\n\n'+
+        '• Folio: *'+e.id+'*\n• Falla reportada: '+e.falla+'\n\nEn cuanto tengamos el resultado te lo compartimos para que tú decidas cómo continuar.'+cierre;
+    case 'Esperando refacción':
+      return hola+' 📦\n\nTe contamos cómo va tu *'+eq+'*: ya tenemos identificada la reparación y estamos esperando que llegue la refacción'+(e.refaccion?' ('+e.refaccion+')':'')+'.\n\n'+
+        '• Folio: *'+e.id+'*\n'+(e.fechaPrometida?'• Fecha estimada: '+fmtFecha(e.fechaPrometida)+'\n':'')+
+        '\nEn cuanto llegue la instalamos y te avisamos para que pases por tu equipo.'+cierre;
+    case 'En reparación':
+      return hola+' 🛠️\n\nBuenas noticias: tu *'+eq+'* ya está en reparación.\n\n'+resumenOrden(e,false)+
+        '\n\n'+(e.fechaPrometida?'Si todo sale como esperamos, estará listo para el '+fmtFecha(e.fechaPrometida)+'. ':'')+'Te avisamos apenas esté terminado.'+cierre;
+    case 'Listo para entrega':
+      return hola+' ✅\n\n¡Tu *'+eq+'* ya está listo! Puedes pasar por él cuando gustes.\n\n'+
+        '• Folio: *'+e.id+'*\n'+(s>0?'• 💰 Saldo por pagar: *'+mx(s)+'*\n':'• Pago: liquidado\n')+
+        (g>0?'• Garantía: '+g+' días a partir de la entrega\n':'')+
+        '\nPor favor lleva tu ticket o menciona tu folio para entregártelo rápido. Revisaremos juntos que todo funcione bien antes de que te lo lleves.'+
+        '\n\n'+firmaMsg(e);
+    case 'Entregado':
+      return hola+' 🙌\n\nGracias por permitirnos reparar tu *'+eq+'*. Fue un gusto atenderte.\n\n'+
+        '• Folio: *'+e.id+'*\n'+
+        (g>0&&e.fechaEntrega?'• Garantía: '+g+' días, vigente hasta el '+fmtFecha(addDias(e.fechaEntrega,g))+'\n':'')+
+        '\nSi notas cualquier detalle con la reparación, escríbenos con tu folio y con gusto lo revisamos. Y si te quedó contento el servicio, recomiéndanos con tus familiares y amigos: nos ayuda muchísimo.'+
+        '\n\n'+firmaMsg(e);
+    default:
+      return hola+'\n\nRevisamos con detalle tu *'+eq+'* (folio *'+e.id+'*) y, lamentablemente, en esta ocasión no fue posible repararlo.\n\n'+
+        'Puedes pasar por él cuando gustes. Gracias por habernos dado la oportunidad de revisarlo; si más adelante necesitas ayuda con este u otro equipo, con gusto te atendemos.'+
+        '\n\n'+firmaMsg(e);
+  }
+}
+function mensajeProveedor(e,p){
+  return saludoHora()+'. Le saludamos de *'+NEGOCIO+'*.\n\nNecesitamos cotizar la siguiente refacción:\n\n'+
+    '• Refacción: '+(e.refaccion||'por confirmar')+'\n• Equipo: '+nombreEq(e)+'\n\n'+
+    '¿Nos puede confirmar disponibilidad, precio y tiempo de entrega? Quedamos atentos. Muchas gracias.\n\n'+firmaMsg(e);
+}
+function textoRecibo(e){
+  var s=saldo(e);
+  return [NEGOCIO.toUpperCase()+' · '+LEMA,'Recibo de ingreso · Folio '+e.id,'',
+    'Fecha de ingreso: '+fmtFecha(e.fechaIngreso),'Cliente: '+e.cliente+(e.telefono?' · '+e.telefono:''),
+    (e.refTelefono||e.refNombre?'Referencia: '+[e.refNombre,e.refTelefono].filter(Boolean).join(' · '):''),
+    'Equipo: '+nombreEq(e)+(e.imei?' · IMEI '+e.imei:''),
+    'Falla reportada: '+e.falla,
+    'Accesorios: '+((e.accesorios||[]).join(', ')||'Ninguno'),
+    'Estado físico: '+(e.estadoFisico||'Sin observaciones'),
+    'Servicio: '+(e.servicio||'Por definir'),
+    'Costo: '+mx(e.costo)+' · Anticipo: '+mx(e.anticipo)+' · Saldo: '+mx(s),
+    'Entrega estimada: '+(e.fechaPrometida?fmtFecha(e.fechaPrometida):'Por confirmar'),
+    'Garantía: '+(+e.garantiaDias>0?e.garantiaDias+' días desde la entrega':'Sin garantía'),'',
+    TERMINOS[0]].join('\n');
+}
+
+/* ---------- almacenamiento ---------- */
+function localStore(key){
+  var mem=[],cb=null;
+  try{var r=localStorage.getItem(key);mem=r?JSON.parse(r):[];}catch(e){mem=[];}
+  function persist(){try{localStorage.setItem(key,JSON.stringify(mem));}catch(e){}}
+  function emit(){if(cb)cb(mem.slice());}
+  return {
+    local:true,
+    libre:function(id){return Promise.resolve(!mem.some(function(x){return x.id===id;}));},
+    subscribe:function(f){cb=f;emit();return function(){cb=null;};},
+    save:function(d){var i=-1;for(var k=0;k<mem.length;k++)if(mem[k].id===d.id)i=k;if(i>=0)mem[i]=d;else mem.push(d);persist();emit();return Promise.resolve();},
+    remove:function(id){mem=mem.filter(function(x){return x.id!==id});persist();emit();return Promise.resolve();}
+  };
+}
+function dbStore(db,nombre){
+  var col=db.collection(nombre),chains={};
+  function enCola(id,fn){var p=(chains[id]||Promise.resolve()).then(fn,fn);chains[id]=p.catch(function(){});return p;}
+  return {
+    local:false,
+    libre:function(id){return col.doc(id).get().then(function(s){return !s.exists;});},
+    subscribe:function(f,err){
+      return col.onSnapshot(function(s){
+        f(s.docs.map(function(d){var x=Object.assign({},d.data());x.id=d.id;return x;}));
+      },err);
+    },
+    save:function(d){return enCola(d.id,function(){return col.doc(d.id).set(d);});},
+    remove:function(id){return enCola(id,function(){return col.doc(id).delete();});}
+  };
+}
+
+function codigoLocal(id){var l=findLocal(id);return l&&l.codigo?l.codigo:'';}
+function folioCandidato(localId,extra){
+  var cod=codigoLocal(localId),pre=(cod||'GSM')+'-',max=0;
+  equipos.forEach(function(e){
+    if(e.id&&e.id.indexOf(pre)===0){var m=/^(\d+)$/.exec(e.id.slice(pre.length));if(m)max=Math.max(max,+m[1]);}
+  });
+  return pre+String(max+1+(extra||0)).padStart(4,'0');
+}
+function reservarFolio(localId){
+  var i=0;
+  function intento(){
+    var f=folioCandidato(localId,i);
+    return store.libre(f).then(function(ok){if(ok||i>=25)return f;i++;return intento();});
+  }
+  return intento();
+}
+
+var toastT=null;
+function toast(msg){
+  var t=$('#toast');t.textContent=msg;t.hidden=false;
+  clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true;},2800);
+}
+
+function upsert(arr,d){
+  var i=-1;for(var k=0;k<arr.length;k++)if(arr[k].id===d.id)i=k;
+  if(i>=0)arr[i]=d;else arr.push(d);
+}
+function guardar(d){
+  upsert(equipos,d);renderTodo();
+  return store.save(d).catch(function(e){
+    toast('No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.');
+    throw e;
+  });
+}
+
+/* ---------- resumen, filtros, lista ---------- */
+function stats(){
+  var h=hoy(),mes=h.slice(0,7),t=0,l=0,a=0,ent=0,sal=0,cob=0,gan=0;
+  vis().forEach(function(e){
+    if(esAbierto(e))t++;
+    if(e.estatus==='Listo para entrega')l++;
+    if(esAtrasado(e))a++;
+    if(e.fechaIngreso===h)ent++;
+    if(e.fechaEntrega===h&&SALIDAS.indexOf(e.estatus)>-1)sal++;
+    if(e.estatus==='Entregado'&&String(e.fechaEntrega||'').slice(0,7)===mes)gan+=ganancia(e);
+    cob+=saldo(e);
+  });
+  var r=[['En taller',t,''],['Listos para entregar',l,''],['Atrasados',a,a?'alert':''],['Entraron hoy',ent,''],['Salieron hoy',sal,''],['Por cobrar',mx(cob),''],];
+  if(esAdmin())r.push(['Ganancia del mes',mx(gan),'']);
+  return r;
+}
+function pasaFiltro(e){
+  if(filtro==='taller')return esAbierto(e);
+  if(filtro==='atrasados')return esAtrasado(e);
+  if(filtro==='listos')return e.estatus==='Listo para entrega';
+  if(filtro==='salidas')return SALIDAS.indexOf(e.estatus)>-1;
+  return true;
+}
+function conteoFiltro(k){var f=filtro;filtro=k;var n=vis().filter(pasaFiltro).length;filtro=f;return n;}
+function pasaBusqueda(e){
+  if(!busqueda)return true;
+  var txt=norm([e.id,e.cliente,e.telefono,e.refNombre,e.refTelefono,e.marca,e.modelo,e.imei,e.falla,e.servicio].join(' '));
+  return busqueda.split(/\s+/).every(function(p){return txt.indexOf(p)>-1;});
+}
+function renderStats(){
+  $('#stats').innerHTML=stats().map(function(s,i){
+  return '<div class="stat '+(s[2]==='alert'?'alert':'c'+(i%5))+'"><span class="l">'+esc(s[0])+'</span><span class="v">'+esc(s[1])+'</span></div>';
+  }).join('');
+}
+function renderFiltros(){
+  $('#filtros').innerHTML=FILTROS.map(function(f){
+    return '<button type="button" class="chip'+(filtro===f[0]?' on':'')+'" data-action="filtro" data-val="'+f[0]+'" aria-pressed="'+(filtro===f[0])+'">'+f[1]+'<span class="n">'+conteoFiltro(f[0])+'</span></button>';
+  }).join('');
+}
+function ticketHTML(e){
+  var abierto=esAbierto(e),atras=esAtrasado(e),s=saldo(e);
+  var dias=diffDias(e.fechaIngreso,e.fechaEntrega||hoy());
+  var linea=abierto?(e.fechaPrometida?'Promete '+fmtFecha(e.fechaPrometida):'Sin fecha prometida'):('Salió '+fmtFecha(e.fechaEntrega)+(dias!=null?' · '+dias+' d en taller':''));
+  var dinero=(+e.costo>0)?(s>0?'<strong>'+mx(s)+'</strong><span class="muted">por cobrar</span>':'<strong>Pagado</strong><span class="muted">'+mx(e.costo)+'</span>'):'<span class="muted">Sin costo</span>';
+  return '<button type="button" class="ticket" data-action="abrir" data-id="'+esc(e.id)+'">'+
+    '<span class="t-folio"><span class="mono">'+esc(e.id)+'</span><span class="muted">'+fmtFecha(e.fechaIngreso)+'</span>'+(nomLocal(e)?'<span class="muted">'+esc(nomLocal(e))+'</span>':'')+'</span>'+
+    '<span class="t-cliente"><strong>'+esc(e.cliente)+'</strong><span class="muted">'+esc(e.telefono||'Sin teléfono')+'</span></span>'+
+    '<span class="t-equipo"><strong>'+esc(nombreEq(e))+'</strong><span class="muted clamp">'+esc(e.falla)+'</span></span>'+
+    '<span class="t-estado"><span class="row"><span class="pill '+(TONO[e.estatus]||'idle')+'">'+esc(e.estatus)+'</span>'+(atras?'<span class="pill bad">Atrasado</span>':'')+(e.garantiaDe?'<span class="pill info">Garantía</span>':'')+'</span><span class="muted">'+esc(linea)+'</span>'+(e.tecnicoNombre?'<span class="muted">Técnico: '+esc(e.tecnicoNombre)+'</span>':(abierto?'<span class="muted">Técnico: sin asignar</span>':''))+'</span>'+
+    '<span class="t-saldo">'+dinero+'</span>'+
+  '</button>';
+}
+function renderLista(){
+  var box=$('#lista');
+  if(cargando){box.innerHTML='<div class="empty"><strong>Cargando equipos…</strong>Un momento.</div>';return;}
+  if(errorCarga){box.innerHTML='<div class="empty"><strong>No se pudieron cargar los equipos</strong>'+esc(errorCarga)+'</div>';return;}
+  if(!equipos.length){
+    box.innerHTML='<div class="empty"><strong>Todavía no hay equipos registrados</strong>Toca «Nuevo equipo» para registrar el primero. Cada uno recibe su folio, su ticket y su mensaje para el cliente.</div>';
+    return;
+  }
+  var lista=vis().filter(function(e){return pasaFiltro(e)&&pasaBusqueda(e);});
+  lista.sort(function(a,b){return String(b.creado||b.id).localeCompare(String(a.creado||a.id));});
+  if(!lista.length){
+    box.innerHTML='<div class="empty"><strong>Sin resultados</strong>'+(busqueda?'Ningún equipo coincide con la búsqueda.':'No hay equipos en esta vista.')+'</div>';
+    return;
+  }
+  box.innerHTML=lista.map(ticketHTML).join('');
+}
+function renderPie(){
+  $('#pie').textContent=store&&store.local?'':'Los registros se guardan en este programa y los ves igual desde el celular o la computadora.';
+}
+function renderAviso(){
+  $('#aviso').innerHTML=(store&&store.local)?'<div class="note">Sin conexión con el almacenamiento compartido: los registros se guardan solo en este navegador. Abre el programa desde tu cuenta de Claude para que queden guardados en todos tus dispositivos.</div>':'';
+  renderCabecera();
+}
+function renderTodo(){
+  renderStats();renderFiltros();renderLista();
+  if(modo==='detalle'&&!$('#panel').hidden)renderDetalle();
+  if(vista==='tec')renderTecnico();
+  if(vista==='gar')renderGarantias();
+  if(vista==='ped')renderPiezas();
+}
+
+/* ---------- panel ---------- */
+function abrirPanel(){
+  $('#panel').hidden=false;document.documentElement.classList.add('panel-open');
+  $('#sheet').scrollTop=0;
+}
+function cerrarPanel(){
+  $('#panel').hidden=true;document.documentElement.classList.remove('panel-open');
+  modo=null;selId=null;confirmando=false;recien=false;provDel=null;verTicket=false;
+}
+function campo(id,label,val,o){
+  o=o||{};var t=o.type||'text';
+  var at=(o.list?' list="'+o.list+'"':'')+(o.ph?' placeholder="'+esc(o.ph)+'"':'')+(o.inputmode?' inputmode="'+o.inputmode+'"':'')+(o.min!=null?' min="'+o.min+'"':'')+(o.step?' step="'+o.step+'"':'')+(o.auto?' autocomplete="'+o.auto+'"':' autocomplete="off"');
+  var inp=t==='textarea'?'<textarea id="'+id+'" rows="'+(o.rows||2)+'"'+at+'>'+esc(val)+'</textarea>':'<input id="'+id+'" type="'+t+'" value="'+esc(val)+'"'+at+(o.mono?' class="mono"':'')+'>';
+  return '<div class="campo'+(o.full?' full':'')+'"><label for="'+id+'">'+label+(o.req?' <span class="req">*</span>':'')+'</label>'+inp+(o.hint?'<span class="hint">'+o.hint+'</span>':'')+'</div>';
+}
+
+/* ---------- formulario de equipo ---------- */
+function accionesForm(){
+  return (formNuevo?'<label class="check"><input type="checkbox" id="f-auto"'+(pref.auto?' checked':'')+'> Imprimir el ticket al registrar</label>':'')+
+    '<button type="submit" class="btn primary big">'+(formNuevo?'Registrar equipo':'Guardar cambios')+'</button>'+
+    '<button type="button" class="btn ghost big" data-action="cancelar-form">Cancelar</button>';
+}
+function cancelarForm(){
+  if(!formSucio){salirForm();return;}
+  var fa=$('#formActions');if(!fa)return;
+  fa.innerHTML='<p class="confirm-msg">¿Descartar lo que capturaste?</p><button type="button" class="btn danger big" data-action="descartar">Descartar</button><button type="button" class="btn big" data-action="seguir">Seguir editando</button>';
+}
+function salirForm(){
+  var id=selId;formSucio=false;
+  if(id&&find(id))abrirDetalle(id);else cerrarPanel();
+}
+function formHTML(e,forzarNuevo){
+  var nuevo=forzarNuevo!==undefined?forzarNuevo:!e;e=e||{};var acc=e.accesorios||[];
+  var locSec=((esAdmin()||esTecnico())&&nuevo)?'<div class="sec" style="margin-bottom:18px"><h3>Local</h3><div class="campo"><label for="f-local">Local donde se registra</label><select id="f-local">'+locales.slice().sort(function(a,b){return (a.orden||0)-(b.orden||0);}).map(function(l){return '<option value="'+esc(l.id)+'"'+(l.id===(e.localId||localFiltro)?' selected':'')+'>'+esc(l.nombre)+'</option>';}).join('')+'</select></div></div>':'';
+  var opts='<option value="">Sin proveedor</option>'+provs.slice().sort(function(a,b){return norm(a.nombre).localeCompare(norm(b.nombre));}).map(function(p){return '<option value="'+esc(p.id)+'"'+(p.id===e.proveedorId?' selected':'')+'>'+esc(p.nombre)+'</option>';}).join('');
+  return '<div class="sheet-head"><div><h2 id="panelTitulo">'+(nuevo?(e.garantiaDe?'Reclamo de garantía':'Nuevo equipo'):'Editar '+esc(e.id))+'</h2><div class="sub">'+(nuevo?(e.garantiaDe?'De la orden '+esc(e.garantiaDe)+'. El folio se asigna al guardar.':'El folio se asigna al guardar'):esc(e.cliente))+'</div></div><button type="button" class="btn small" data-action="cancelar-form">Cancelar</button></div>'+
+  '<form id="form" novalidate autocomplete="off">'+locSec+
+  '<div class="sec"><h3>Cliente</h3><div class="grid2">'+
+    campo('f-cliente','Nombre',e.cliente||'',{req:1,auto:'off'})+
+    campo('f-telefono','Teléfono / WhatsApp',e.telefono||'',{type:'tel',inputmode:'tel',hint:'10 dígitos. Con él se arma el mensaje de WhatsApp.'})+
+    campo('f-refnombre','Persona de referencia',e.refNombre||'',{auto:'off',hint:'Un familiar o conocido que pueda avisarle. Ej. Esposa, mamá, vecino.'})+
+    campo('f-reftel','Teléfono de referencia',e.refTelefono||'',{type:'tel',inputmode:'tel',hint:'10 dígitos. Se usa si el cliente no contesta.'})+
+  '</div></div>'+
+  '<div class="sec" style="margin-top:18px"><h3>Equipo</h3><div class="grid2">'+
+    campo('f-marca','Marca',e.marca||'',{req:1,list:'dl-marcas'})+
+    campo('f-modelo','Modelo',e.modelo||'',{req:1,ph:'Ej. Galaxy A15'})+
+    campo('f-imei','IMEI o número de serie',e.imei||'',{mono:1,hint:'Se ve marcando *#06# en el teléfono, o bajo la batería.'})+
+    campo('f-bloqueo','Bloqueo (PIN, patrón o contraseña)',e.bloqueo||'')+
+  '</div></div>'+
+  '<div class="sec" style="margin-top:18px"><h3>Falla y estado al recibirlo</h3><div class="grid2">'+
+    campo('f-falla','Falla reportada',e.falla||'',{type:'textarea',req:1,full:1,ph:'Ej. No carga, pantalla estrellada, se reinicia solo'})+
+    campo('f-estado','Estado físico',e.estadoFisico||'',{type:'textarea',full:1,ph:'Ej. Marco golpeado, tapa rayada, cámara con polvo'})+
+    '<div class="campo full"><label>Accesorios que deja</label><div class="checks">'+ACCESORIOS.map(function(a){return '<label class="check"><input type="checkbox" name="acc" value="'+esc(a)+'"'+(acc.indexOf(a)>-1?' checked':'')+'> '+esc(a)+'</label>';}).join('')+'</div></div>'+
+  '</div></div>'+
+  '<div class="sec" style="margin-top:18px"><h3>Servicio y cobro</h3><div class="grid2">'+
+    campo('f-servicio','Servicio a realizar',e.servicio||'',{full:1,list:'dl-servicios'})+
+    campo('f-costo','Costo al cliente ($)',e.costo!=null&&e.costo!==''?e.costo:'',{type:'number',inputmode:'decimal',min:0,step:'any'})+
+    campo('f-anticipo','Anticipo ($)',e.anticipo!=null&&e.anticipo!==''?e.anticipo:'',{type:'number',inputmode:'decimal',min:0,step:'any'})+
+    campo('f-ingreso','Fecha de ingreso',e.fechaIngreso||hoy(),{type:'date'})+
+    campo('f-prometida','Fecha prometida de entrega',e.fechaPrometida||'',{type:'date'})+
+    campo('f-garantia','Garantía (días)',e.garantiaDias!=null?e.garantiaDias:30,{type:'number',inputmode:'numeric',min:0,step:1})+
+    '<div class="campo"><label>Saldo por cobrar</label><div id="saldoVivo" class="mono" style="padding:9px 0">'+mx(0)+'</div></div>'+
+  '</div></div>'+
+  (esAdmin()?'<div class="sec" style="margin-top:18px"><h3>Refacción y proveedor</h3><div class="grid2">'+
+    campo('f-refaccion','Refacción necesaria',e.refaccion||'',{full:1,ph:'Ej. Pantalla Samsung A15 con marco'})+
+    '<div class="campo"><label for="f-proveedor">Proveedor</label><select id="f-proveedor">'+opts+'</select>'+(provs.length?'':'<span class="hint">Aún no tienes proveedores. Agrégalos con el botón «Proveedores».</span>')+'</div>'+
+    campo('f-costoref','Costo de la refacción ($)',e.costoRefaccion!=null&&e.costoRefaccion!==''?e.costoRefaccion:'',{type:'number',inputmode:'decimal',min:0,step:'any'})+
+    '<div class="campo"><label>Ganancia estimada</label><div id="gananciaVivo" class="mono" style="padding:9px 0">'+mx(0)+'</div></div>'+
+  '</div></div>':'')+
+  '<div class="sec" style="margin-top:18px"><h3>Notas</h3>'+campo('f-notas','Observaciones',e.notas||'',{type:'textarea',rows:3,full:1})+'</div>'+
+  '<datalist id="dl-marcas">'+MARCAS.map(function(m){return '<option value="'+esc(m)+'">';}).join('')+'</datalist>'+
+  '<datalist id="dl-servicios">'+SERVICIOS.map(function(m){return '<option value="'+esc(m)+'">';}).join('')+'</datalist>'+
+  '<p class="err" id="formError" role="alert" hidden></p>'+
+  '<div class="form-actions" id="formActions">'+accionesForm()+'</div>'+
+  '</form>';
+}
+function abrirForm(id){
+  modo='form';selId=id||null;confirmando=false;formSucio=false;formNuevo=!id;
+  if(id)formPreset=null;
+  var e=id?find(id):formPreset;
+  $('#sheet').innerHTML=formHTML(e,!id);
+  abrirPanel();actualizarVivos();
+  var f=$('#form');
+  f.addEventListener('submit',function(ev){ev.preventDefault();guardarForm();});
+  f.addEventListener('input',function(ev){formSucio=true;if(/^f-(costo|anticipo|costoref)$/.test(ev.target.id))actualizarVivos();});
+  setTimeout(function(){var c=$('#f-cliente');if(c)c.focus();},50);
+}
+function actualizarVivos(){
+  var rEl=$('#f-costoref');
+  var c=parseFloat($('#f-costo').value)||0,a=parseFloat($('#f-anticipo').value)||0,r=rEl?(parseFloat(rEl.value)||0):0;
+  var s=$('#saldoVivo'),g=$('#gananciaVivo');
+  if(s)s.textContent=mx(Math.max(0,c-a));
+  if(g)g.textContent=mx(c-r);
+}
+function guardarForm(){
+  var v=function(id){return $('#'+id).value.trim();};
+  var err=$('#formError');
+  var faltan=[['f-cliente','el nombre del cliente'],['f-marca','la marca'],['f-modelo','el modelo'],['f-falla','la falla reportada']].filter(function(r){return !v(r[0]);});
+  if(faltan.length){
+    err.hidden=false;err.textContent='Falta '+faltan.map(function(r){return r[1];}).join(', ')+'.';
+    $('#'+faltan[0][0]).focus();return;
+  }
+  var costo=parseFloat($('#f-costo').value),anticipo=parseFloat($('#f-anticipo').value),costoRef=$('#f-costoref')?parseFloat($('#f-costoref').value):NaN;
+  if(!isNaN(anticipo)&&anticipo>0&&(isNaN(costo)||anticipo>costo)){
+    err.hidden=false;err.textContent='El anticipo no puede ser mayor que el costo.';$('#f-anticipo').focus();return;
+  }
+  err.hidden=true;
+  var acc=[].slice.call(document.querySelectorAll('input[name="acc"]:checked')).map(function(x){return x.value;});
+  var prev=selId?find(selId):null;
+  var nuevo=!prev;
+  var autoEl=$('#f-auto');
+  if(autoEl){pref.auto=autoEl.checked;guardarPref();}
+  var win=null;
+  if(nuevo&&pref.auto){try{win=window.open('','_blank');}catch(x){win=null;}}
+  var ahora=new Date().toISOString();
+  var d=prev?Object.assign({},prev):{id:'',creado:ahora,estatus:'Recibido',historial:[{estatus:'Recibido',en:ahora,por:sesion?sesion.nombre:''}],pagado:false,fechaEntrega:''};
+  d.cliente=v('f-cliente');d.telefono=v('f-telefono');d.refNombre=v('f-refnombre');d.refTelefono=v('f-reftel');d.marca=v('f-marca');d.modelo=v('f-modelo');
+  d.imei=v('f-imei');d.bloqueo=v('f-bloqueo');d.falla=v('f-falla');d.estadoFisico=v('f-estado');
+  d.accesorios=acc;d.servicio=v('f-servicio');
+  d.costo=isNaN(costo)?0:costo;d.anticipo=isNaN(anticipo)?0:anticipo;
+  d.fechaIngreso=v('f-ingreso')||hoy();d.fechaPrometida=v('f-prometida');
+  var g=parseInt($('#f-garantia').value,10);d.garantiaDias=isNaN(g)?0:Math.max(0,g);
+  if($('#f-refaccion')){d.refaccion=v('f-refaccion');d.proveedorId=$('#f-proveedor').value;d.costoRefaccion=isNaN(costoRef)?0:costoRef;}
+  d.notas=v('f-notas');
+  if(nuevo){
+    var ls=$('#f-local');d.localId=ls?ls.value:(sesion?sesion.localId:'');
+    var lo=findLocal(d.localId);
+    if(!lo){err.hidden=false;err.textContent='Elige el local donde se registra el equipo.';return;}
+    d.localNombre=lo.nombre;d.cajeroId=sesion.id;d.cajeroNombre=sesion.nombre;
+    if(formPreset&&formPreset.garantiaDe)d.garantiaDe=formPreset.garantiaDe;
+  }
+  (nuevo?reservarFolio(d.localId).then(function(f){d.id=f;}):Promise.resolve()).then(function(){return guardar(d);}).then(function(){
+    formSucio=false;formPreset=null;
+    toast(nuevo?(d.garantiaDe?'Reclamo de garantía '+d.id+' registrado':'Equipo '+d.id+' registrado'):'Cambios guardados');
+    abrirDetalle(d.id,nuevo);
+    if(nuevo&&pref.auto)imprimirTicket(d,pref.fmt,win);
+  }).catch(function(){});
+}
+
+/* ---------- detalle ---------- */
+function dato(l,v,full){return '<div'+(full?' class="full"':'')+'><dt>'+l+'</dt><dd>'+(v||'<span class="muted">—</span>')+'</dd></div>';}
+function detalleHTML(e){
+  var abierto=esAbierto(e),s=saldo(e),atras=esAtrasado(e);
+  var dias=diffDias(e.fechaIngreso,e.fechaEntrega||hoy());
+  var garantia=+e.garantiaDias>0?(e.estatus==='Entregado'&&e.fechaEntrega?e.garantiaDias+' días · hasta '+fmtFecha(addDias(e.fechaEntrega,+e.garantiaDias)):e.garantiaDias+' días (corren desde la entrega)'):'Sin garantía';
+  var rapidas='';
+  if(abierto){
+    if(e.estatus!=='Listo para entrega')rapidas+='<button type="button" class="btn" data-action="estatus" data-val="Listo para entrega">Marcar como listo</button>';
+    rapidas+='<button type="button" class="btn primary" data-action="entregar">'+(s>0?'Entregar y cobrar '+mx(s):'Entregar al cliente')+'</button>';
+  } else if(e.estatus==='Entregado'&&s>0){
+    rapidas+='<button type="button" class="btn primary" data-action="pagado">Marcar saldo como pagado ('+mx(s)+')</button>';
+  }
+  var gi0=garInfo(e);if(gi0&&gi0.estado!=='vencida')rapidas+='<button type="button" class="btn" data-action="gar-reclamar" data-id="'+esc(e.id)+'">Reclamar garantía</button>';
+  var hist=(e.historial||[]).slice().reverse().map(function(h){
+    return '<li><span class="pill '+(TONO[h.estatus]||'idle')+'">'+esc(h.estatus)+'</span><span class="muted">'+esc(fmtHora(h.en))+(h.por?' · '+esc(h.por):'')+'</span></li>';
+  }).join('');
+  var conf=confirmando?'<div class="confirm"><p>¿Eliminar el registro '+esc(e.id)+' de '+esc(e.cliente)+'? No se puede deshacer.</p><div class="actions"><button type="button" class="btn danger" data-action="eliminar-si">Sí, eliminar</button><button type="button" class="btn" data-action="eliminar-no">Cancelar</button></div></div>':'';
+
+  /* mensaje automático para el cliente */
+  var key=e.id+'|'+e.estatus;
+  var msg=msgDraft.key===key?msgDraft.text:mensajeCliente(e);
+  var wa=linkWA(e.telefono,msg),waRef=linkWA(e.refTelefono,msgRef(e,msg));
+  var msgSec='<div class="sec"><h3>Mensaje para el cliente</h3>'+
+    '<p class="hint">Se arma solo según el estatus actual ('+esc(e.estatus)+'). Puedes editarlo antes de enviarlo.</p>'+
+    '<textarea id="msgCliente" rows="14" aria-label="Mensaje para el cliente">'+esc(msg)+'</textarea>'+
+    '<div class="actions"><a class="btn primary" id="waCliente" target="_blank" rel="noopener" href="'+esc(wa||'#')+'"'+(wa?'':' aria-disabled="true"')+'>Abrir en WhatsApp</a>'+
+    (waRef?'<a class="btn" id="waRef" target="_blank" rel="noopener" href="'+esc(waRef)+'">WhatsApp a la referencia'+(e.refNombre?' ('+esc(e.refNombre)+')':'')+'</a>':'')+
+    '<button type="button" class="btn" data-action="copiar-msg">Copiar mensaje</button></div>'+
+    (wa?'':'<p class="hint err">Falta un teléfono válido de 10 dígitos. Edita los datos del equipo para poder abrir WhatsApp.</p>')+'</div>';
+
+  /* ticket */
+  var tk='<div class="sec"><h3>Ticket para imprimir</h3>'+
+    '<div class="seg" role="group" aria-label="Formato del ticket"><button type="button" class="chip'+(pref.fmt==='80'?' on':'')+'" data-action="fmt" data-val="80" aria-pressed="'+(pref.fmt==='80')+'">Ticket 80 mm</button><button type="button" class="chip'+(pref.fmt==='carta'?' on':'')+'" data-action="fmt" data-val="carta" aria-pressed="'+(pref.fmt==='carta')+'">Hoja carta (2 copias)</button></div>'+
+    '<div class="actions"><button type="button" class="btn primary" data-action="imprimir">Imprimir ticket</button>'+
+    '<button type="button" class="btn" data-action="vista">'+(verTicket?'Ocultar vista previa':'Vista previa')+'</button>'+
+    '<button type="button" class="btn" data-action="ticket"'+(descargas?'':' disabled')+'>Guardar PDF</button></div>'+
+    '<p class="hint">Se abre una ventana con el ticket y el cuadro de impresión. Al registrar un equipo se abre sola. Si tu navegador la bloquea, permite las ventanas emergentes de esta página.</p>'+
+    (verTicket?'<div class="tkprev"><style>'+tkCss()+'</style><div class="tkd">'+ticketBox(e,pref.fmt)+'</div></div>':'')+
+    '<div id="copiaManual" hidden><textarea rows="8" readonly aria-label="Texto para copiar"></textarea></div></div>';
+
+  /* refacción y proveedor */
+  var pv=findProv(e.proveedorId),prov='';
+  if(e.refaccion||pv||+e.costoRefaccion>0){
+    var wp=pv?linkWA(pv.telefono,mensajeProveedor(e,pv)):'';
+    prov='<div class="sec"><h3>Refacción y proveedor</h3><dl class="dl">'+
+      dato('Refacción',esc(e.refaccion),1)+
+      dato('Proveedor',pv?esc(pv.nombre)+(pv.telefono?'<br><span class="mono">'+esc(pv.telefono)+'</span>':''):'')+
+      (esAdmin()?dato('Costo de la refacción',+e.costoRefaccion>0?mx(e.costoRefaccion):''):'')+'</dl>'+
+      (esAdmin()?'<div class="money m2"><div><span>Ganancia</span><strong>'+mx(ganancia(e))+'</strong></div><div><span>Costo al cliente</span><strong>'+mx(e.costo)+'</strong></div></div>':'')+
+      (pv?'<div class="actions"><a class="btn" target="_blank" rel="noopener" href="'+esc(wp||'#')+'"'+(wp?'':' aria-disabled="true"')+'>Pedir refacción por WhatsApp</a></div><pre class="preview">'+esc(mensajeProveedor(e,pv))+'</pre>':'<p class="hint">Elige un proveedor en «Editar datos» para generar el pedido automático.</p>')+'</div>';
+  }
+
+  return '<div class="sheet-head"><div><h2 id="panelTitulo"><span class="mono" style="font-size:18px">'+esc(e.id)+'</span> · '+esc(nombreEq(e))+'</h2>'+
+    '<div class="sub"><span class="pill '+(TONO[e.estatus]||'idle')+'">'+esc(e.estatus)+'</span>'+(atras?' <span class="pill bad">Atrasado</span>':'')+'</div></div>'+
+    '<button type="button" class="btn small" data-action="cerrar" aria-label="Cerrar">Cerrar</button></div>'+
+  (recien?'<div class="ok-banner"><strong>Equipo registrado con folio '+esc(e.id)+'.</strong> El ticket y el mensaje para el cliente ya están listos más abajo.</div>':'')+
+  (rapidas?'<div class="actions">'+rapidas+'</div>':'')+
+  '<div class="sec"><h3>Cambiar estatus</h3><div class="chips">'+ESTATUS.map(function(st){return '<button type="button" class="chip'+(st===e.estatus?' on':'')+'" data-action="estatus" data-val="'+esc(st)+'" aria-pressed="'+(st===e.estatus)+'">'+esc(st)+'</button>';}).join('')+'</div></div>'+
+  msgSec+tk+prov+piezasEquipoHTML(e)+
+  (e.tecnicoId||esAdmin()?'<div class="sec"><h3>Técnico</h3>'+(esAdmin()?'<div class="campo"><label for="det-tec">Técnico asignado</label><select id="det-tec"><option value="">Sin asignar</option>'+tecnicos().map(function(u){return '<option value="'+esc(u.id)+'"'+(u.id===e.tecnicoId?' selected':'')+'>'+esc(u.nombre)+'</option>';}).join('')+'</select></div>':'')+
+    (e.tecnicoId&&(esAdmin()||(esTecnico()&&sesion.id===e.tecnicoId))?'<dl class="dl">'+dato('Técnico',esc(e.tecnicoNombre))+dato('Pago al técnico ('+pctDe(e)+'%)',mx(pagoTec(e)))+'</dl>':'')+'</div>':'')+
+  '<div class="sec"><h3>Cliente</h3><dl class="dl">'+dato('Nombre',esc(e.cliente))+dato('Teléfono',esc(e.telefono))+dato('Persona de referencia',esc(e.refNombre))+dato('Teléfono de referencia',esc(e.refTelefono))+'</dl></div>'+
+  '<div class="sec"><h3>Equipo</h3><dl class="dl">'+
+    dato('Marca y modelo',esc(nombreEq(e)))+
+    dato('IMEI / serie',e.imei?'<span class="mono">'+esc(e.imei)+'</span>':'')+
+    dato('Bloqueo',e.bloqueo?'<span class="mono">'+esc(e.bloqueo)+'</span>':'')+
+    dato('Accesorios',esc((e.accesorios||[]).join(', ')))+
+    dato('Falla reportada',esc(e.falla),1)+
+    dato('Estado físico al recibirlo',esc(e.estadoFisico),1)+
+  '</dl></div>'+
+  '<div class="sec"><h3>Servicio y cobro</h3><dl class="dl">'+dato('Servicio',esc(e.servicio),1)+'</dl>'+
+    '<div class="money"><div><span>Costo</span><strong>'+mx(e.costo)+'</strong></div><div><span>Anticipo</span><strong>'+mx(e.anticipo)+'</strong></div><div><span>Saldo</span><strong>'+mx(s)+'</strong></div></div></div>'+
+  '<div class="sec"><h3>Fechas</h3><dl class="dl">'+
+    dato('Ingreso',fmtFecha(e.fechaIngreso))+
+    dato('Entrega prometida',e.fechaPrometida?fmtFecha(e.fechaPrometida):'')+
+    dato('Salida',SALIDAS.indexOf(e.estatus)>-1&&e.fechaEntrega?fmtFecha(e.fechaEntrega):'')+
+    dato('Días en el taller',dias!=null?String(dias):'')+
+    dato('Local',esc(nomLocal(e)))+dato('Registró',esc(e.cajeroNombre))+
+    dato('Garantía',esc(garantia),1)+(e.garantiaDe?dato('Reclamo de garantía de','<button type="button" class="btn small" data-action="tec-abrir" data-id="'+esc(e.garantiaDe)+'">'+esc(e.garantiaDe)+'</button>',1):'')+(reclamosDe(e.id).length?dato('Reclamos de garantía',reclamosDe(e.id).map(function(x){return '<button type="button" class="btn small" data-action="tec-abrir" data-id="'+esc(x.id)+'">'+esc(x.id)+'</button>';}).join(' '),1):'')+
+  '</dl></div>'+
+  (e.notas?'<div class="sec"><h3>Notas</h3><p style="margin:0;white-space:pre-wrap">'+esc(e.notas)+'</p></div>':'')+
+  '<div class="sec"><h3>Historial</h3><ul class="hist">'+hist+'</ul></div>'+
+  conf+
+  '<div class="actions"><button type="button" class="btn" data-action="editar">Editar datos</button>'+
+  (confirmando||!esAdmin()?'':'<button type="button" class="btn danger" data-action="eliminar">Eliminar registro</button>')+'</div>';
+}
+function renderDetalle(){
+  var e=find(selId);
+  if(!e){cerrarPanel();return;}
+  var sheet=$('#sheet'),top=sheet.scrollTop,ta=$('#msgCliente'),foco=ta&&document.activeElement===ta;
+  sheet.innerHTML=detalleHTML(e);
+  sheet.scrollTop=top;
+  if(foco){var n=$('#msgCliente');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length);}}
+}
+function abrirDetalle(id,nuevo){
+  modo='detalle';selId=id;confirmando=false;recien=!!nuevo;
+  var e=find(id);if(!e)return;
+  $('#sheet').innerHTML=detalleHTML(e);abrirPanel();
+}
+
+/* ---------- ticket para imprimir (ventana) ---------- */
+function tkCss(){
+  return '.tkd{font-family:Arial,Helvetica,sans-serif;color:#000;background:#fff}.tkd *{box-sizing:border-box}'+
+  '.tkd .tk{width:72mm;padding:4mm;margin:0 auto}.tkd .tk.l{width:98mm;margin:0}'+
+  '.tkd .lg{display:block;width:22mm;height:22mm;margin:0 auto 2mm}.tkd h1{font-size:14pt;text-align:center;margin:0}'+
+  '.tkd .lm{font-size:8pt;text-align:center;color:#444}.tkd hr{border:0;border-top:1px dashed #777;margin:2.5mm 0}'+
+  '.tkd .ct{font-size:9pt;font-weight:700;text-align:center}.tkd .fo{font-size:16pt;font-weight:700;text-align:center}'+
+  '.tkd .c{margin-bottom:1.6mm}.tkd .c b{display:block;font-size:6.5pt;color:#555;text-transform:uppercase}'+
+  '.tkd .c span{font-size:9pt;overflow-wrap:anywhere}.tkd .f{display:flex;justify-content:space-between;font-size:9pt;margin-bottom:.6mm}'+
+  '.tkd .f.s{font-size:11pt;font-weight:700}.tkd .tm{font-size:7pt;color:#444;margin:0 0 .5mm}'+
+  '.tkd .fi{margin:9mm 4mm 0;border-top:1px solid #333;text-align:center;font-size:7pt;padding-top:1mm;color:#444}'+
+  '.tkd .gr{text-align:center;font-weight:700;font-size:8pt;margin-top:1mm}'+
+  '.tkd .qr{text-align:center;margin:2mm 0 1mm}.tkd .qr svg{width:26mm;height:26mm;display:block;margin:0 auto 1mm}'+
+  '.tkd .cp{text-align:center;font-size:7pt;font-weight:700;color:#555;text-transform:uppercase;margin-bottom:1mm}'+
+  '.tkd .pg{display:flex;justify-content:center}.tkd .cut{border-left:1px dashed #888;margin:0 3mm}';
+}
+function ticketCuerpo(e,copia,ancho){
+  function c(l,v){return v?'<div class="c"><b>'+esc(l)+'</b><span>'+esc(v)+'</span></div>':'';}
+  var hora=e.creado?' · '+new Date(e.creado).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):'';
+  return '<div class="tk'+(ancho?' l':'')+'">'+(copia?'<div class="cp">'+esc(copia)+'</div>':'')+
+    '<img class="lg" src="'+LOGO+'" alt="">'+
+    '<h1>'+esc(NEGOCIO.toUpperCase())+'</h1><div class="lm">'+esc(LEMA)+'</div>'+
+    (function(){var l=localDe(e);if(!l)return '';return (l.direccion?'<div class="lm">'+esc(l.direccion)+'</div>':'')+(l.telefono?'<div class="lm">Tel. '+esc(l.telefono)+'</div>':'')+(l.horario?'<div class="lm">'+esc(l.horario)+'</div>':'');})()+'<hr>'+
+    '<div class="ct">ORDEN DE REPARACIÓN</div><div class="fo">'+esc(e.id)+'</div><div class="lm">'+esc(fmtFecha(e.fechaIngreso)+hora)+'</div><hr>'+
+    c('Sucursal',nomLocal(e))+c('Atendió',e.cajeroNombre)+c('Cliente',e.cliente)+c('Teléfono',e.telefono)+c('Referencia',[e.refNombre,e.refTelefono].filter(Boolean).join(' · '))+c('Equipo',nombreEq(e))+c('IMEI / serie',e.imei)+
+    (copia==='Copia taller'?c('Bloqueo',e.bloqueo):'')+
+    c('Falla reportada',e.falla)+c('Accesorios que deja',(e.accesorios||[]).join(', ')||'Ninguno')+
+    c('Estado físico',e.estadoFisico||'Sin observaciones')+c('Servicio',e.servicio||'Por definir')+
+    c('Entrega estimada',e.fechaPrometida?fmtFecha(e.fechaPrometida):'Por confirmar')+'<hr>'+
+    '<div class="f"><span>Costo</span><span>'+esc(mx(e.costo))+'</span></div>'+
+    '<div class="f"><span>Anticipo</span><span>'+esc(mx(e.anticipo))+'</span></div>'+
+    '<div class="f s"><span>SALDO</span><span>'+esc(mx(saldo(e)))+'</span></div><hr>'+
+    c('Garantía',+e.garantiaDias>0?e.garantiaDias+' días desde la entrega':'Sin garantía')+
+    TERMINOS.map(function(t){return '<p class="tm">· '+esc(t)+'</p>';}).join('')+
+    (function(){var u=linkConsulta(e),sv=u?qrSVG(u):'';return sv?'<div class="qr">'+sv+'<div class="lm">Escanea para consultar el estado de tu reparación por WhatsApp</div></div>':'';})()+
+    '<div class="fi">Firma del cliente</div><div class="gr">Gracias por tu confianza</div></div>';
+}
+function ticketBox(e,fmt){
+  return fmt==='carta'?'<div class="pg">'+ticketCuerpo(e,'Copia cliente',true)+'<div class="cut"></div>'+ticketCuerpo(e,'Copia taller',true)+'</div>':ticketCuerpo(e,'',false);
+}
+function ticketDoc(e,fmt){
+  return '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Ticket '+esc(e.id)+'</title><style>'+
+    '@page{size:'+(fmt==='carta'?'letter;margin:6mm':'80mm auto;margin:0')+'}html,body{margin:0;padding:0}'+tkCss()+'</style></head><body class="tkd">'+
+    ticketBox(e,fmt)+
+    '<script>window.addEventListener("load",function(){setTimeout(function(){window.__impreso=true;window.focus();window.print();},350);});<\/script></body></html>';
+}
+function imprimirTicket(e,fmt,w){
+  if(w&&!w.closed){
+    try{
+      w.document.open();w.document.write(ticketDoc(e,fmt));w.document.close();
+      setTimeout(function(){try{if(!w.__impreso){w.focus();w.print();}}catch(x){}},1100);
+      toast('Ticket listo para imprimir');return;
+    }catch(x){try{w.close();}catch(y){}}
+  }
+  verTicket=true;
+  if(modo==='detalle')renderDetalle();
+  toast('El navegador bloqueó la ventana de impresión. Tienes la vista previa y el PDF más abajo.');
+}
+
+/* ---------- ticket PDF ---------- */
+function dibujaTicket(doc,x0,w,e,copia){
+  var m=4,cx=x0+w/2,xl=x0+m,xr=x0+w-m,cw=w-2*m,y=5;
+  function txt(t,size,style,align,gris){
+    doc.setFont('helvetica',style||'normal');doc.setFontSize(size);doc.setTextColor(gris==null?20:gris);
+    var lh=size*0.43,lines=doc.splitTextToSize(String(t),cw);
+    lines.forEach(function(l){y+=lh;doc.text(l,align==='center'?cx:xl,y,{align:align==='center'?'center':'left'});});
+  }
+  function linea(){y+=1.5;doc.setDrawColor(150);doc.setLineDashPattern([0.8,0.8],0);doc.line(xl,y,xr,y);doc.setLineDashPattern([],0);y+=2.5;}
+  function campo(l,v){if(!v)return;txt(String(l).toUpperCase(),6.5,'bold','left',110);txt(v,9,'normal');y+=1.2;}
+  function fila(l,v,negrita){
+    var size=negrita?11:9;y+=size*0.43;
+    doc.setFont('helvetica',negrita?'bold':'normal');doc.setFontSize(size);doc.setTextColor(20);
+    doc.text(l,xl,y);doc.text(v,xr,y,{align:'right'});y+=0.8;
+  }
+  if(copia){txt(copia.toUpperCase(),7,'bold','center',110);y+=1;}
+  try{doc.addImage(LOGO,'JPEG',cx-11,y,22,22);y+=24;}catch(err){}
+  txt(NEGOCIO.toUpperCase(),14,'bold','center');
+  txt(LEMA,8,'normal','center',90);
+  (function(){var l=localDe(e);if(!l)return;if(l.direccion)txt(l.direccion,7.5,'normal','center',90);if(l.telefono)txt('Tel. '+l.telefono,7.5,'normal','center',90);if(l.horario)txt(l.horario,7.5,'normal','center',90);})();
+  linea();
+  txt('ORDEN DE REPARACIÓN',9,'bold','center');
+  txt(e.id,15,'bold','center');
+  txt(fmtFecha(e.fechaIngreso)+(e.creado?' · '+new Date(e.creado).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}):''),8,'normal','center',90);
+  linea();
+  campo('Sucursal',nomLocal(e));
+  campo('Atendió',e.cajeroNombre);
+  campo('Cliente',e.cliente);
+  campo('Teléfono',e.telefono);
+  campo('Referencia',[e.refNombre,e.refTelefono].filter(Boolean).join(' · '));
+  campo('Equipo',nombreEq(e));
+  campo('IMEI / serie',e.imei);
+  if(copia==='Copia taller'&&e.bloqueo)campo('Bloqueo',e.bloqueo);
+  campo('Falla reportada',e.falla);
+  campo('Accesorios que deja',(e.accesorios||[]).join(', ')||'Ninguno');
+  campo('Estado físico',e.estadoFisico||'Sin observaciones');
+  campo('Servicio',e.servicio||'Por definir');
+  campo('Entrega estimada',e.fechaPrometida?fmtFecha(e.fechaPrometida):'Por confirmar');
+  linea();
+  fila('Costo',mx(e.costo));
+  fila('Anticipo',mx(e.anticipo));
+  fila('SALDO',mx(saldo(e)),true);
+  linea();
+  campo('Garantía',+e.garantiaDias>0?e.garantiaDias+' días desde la entrega':'Sin garantía');
+  TERMINOS.forEach(function(t){txt('· '+t,7,'normal','left',90);});
+  (function(){
+    var u=linkConsulta(e),q=u?qrMatriz(u):null;if(!q)return;
+    var n=q.getModuleCount(),size=24,mm=size/(n+2),ox=cx-size/2;y+=2;
+    doc.setFillColor(0,0,0);
+    for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))doc.rect(ox+(c+1)*mm,y+(r+1)*mm,mm+0.02,mm+0.02,'F');
+    y+=size;txt('Escanea para consultar el estado de tu reparación por WhatsApp',6.5,'normal','center',90);
+  })();
+  y+=9;doc.setDrawColor(60);doc.line(xl+4,y,xr-4,y);
+  txt('Firma del cliente',7,'normal','center',90);
+  y+=1;txt('Gracias por tu confianza',8,'bold','center');
+  return y+3;
+}
+function crearPDF(e,fmt){
+  var J=window.jspdf&&window.jspdf.jsPDF;if(!J)return null;
+  if(fmt==='carta'){
+    var d=new J({unit:'mm',format:'letter'});
+    dibujaTicket(d,6,98,e,'Copia cliente');
+    dibujaTicket(d,111.9,98,e,'Copia taller');
+    d.setDrawColor(150);d.setLineDashPattern([1,1.5],0);d.line(107.95,6,107.95,270);d.setLineDashPattern([],0);
+    return d;
+  }
+  var t=new J({unit:'mm',format:[80,700]});
+  var h=dibujaTicket(t,0,80,e,'');
+  var doc=new J({unit:'mm',format:[80,Math.ceil(h)+4]});
+  dibujaTicket(doc,0,80,e,'');
+  return doc;
+}
+function generarTicket(e,fmt){
+  if(!descargas){toast('La descarga solo está disponible al abrir el programa desde tu cuenta de Claude');return;}
+  var doc;
+  try{doc=crearPDF(e,fmt);}catch(err){doc=null;}
+  if(!doc){toast('No se pudo preparar el PDF. Revisa tu conexión e inténtalo de nuevo.');return;}
+  descargas.save({filename:'ticket-'+e.id+(fmt==='carta'?'-carta':'')+'.pdf',data:doc.output('blob')})
+    .then(function(){toast('Ticket guardado: '+e.id);})
+    .catch(function(er){if(er&&er.code==='declined')return;toast('No se pudo guardar el ticket');});
+}
+
+/* ---------- proveedores ---------- */
+function abrirProvs(){
+  modo='prov';selId=null;provDel=null;
+  renderProvs();abrirPanel();
+}
+function renderProvs(){
+  var lista=provs.slice().sort(function(a,b){return norm(a.nombre).localeCompare(norm(b.nombre));});
+  var html='<div class="sheet-head"><div><h2 id="panelTitulo">Proveedores</h2><div class="sub">Donde compras refacciones. Se usan en cada reparación para pedir y calcular la ganancia.</div></div><button type="button" class="btn small" data-action="cerrar">Cerrar</button></div>'+
+    '<div class="actions"><button type="button" class="btn primary" data-action="prov-nuevo">+ Nuevo proveedor</button></div>';
+  if(!lista.length){
+    html+='<div class="empty"><strong>Todavía no hay proveedores</strong>Agrega el primero con su WhatsApp y lo que te surte. Luego lo eliges en cada reparación.</div>';
+  } else {
+    html+='<div class="list">'+lista.map(function(p){
+      var wa=linkWA(p.telefono,saludoHora()+'. Le saludamos de *'+NEGOCIO+'*. ');
+      var conf=provDel===p.id?'<div class="confirm"><p>¿Eliminar a '+esc(p.nombre)+'?</p><div class="actions"><button type="button" class="btn danger" data-action="prov-del-si" data-id="'+esc(p.id)+'">Sí, eliminar</button><button type="button" class="btn" data-action="prov-del-no">Cancelar</button></div></div>':'';
+      return '<div class="prov"><strong>'+esc(p.nombre)+'</strong>'+
+        (p.telefono?'<span class="mono">'+esc(p.telefono)+'</span>':'')+
+        (p.productos?'<span>'+esc(p.productos)+'</span>':'')+
+        (p.notas?'<span class="muted">'+esc(p.notas)+'</span>':'')+
+        conf+
+        '<div class="actions"><button type="button" class="btn small" data-action="prov-editar" data-id="'+esc(p.id)+'">Editar</button>'+
+        (wa?'<a class="btn small" target="_blank" rel="noopener" href="'+esc(wa)+'">Escribir por WhatsApp</a>':'')+
+        '<button type="button" class="btn small danger" data-action="prov-del" data-id="'+esc(p.id)+'">Eliminar</button></div></div>';
+    }).join('')+'</div>';
+  }
+  var sheet=$('#sheet'),top=sheet.scrollTop;sheet.innerHTML=html;sheet.scrollTop=top;
+}
+function abrirProvForm(id){
+  modo='provform';selId=id||null;
+  var p=id?findProv(id):null;p=p||{};
+  $('#sheet').innerHTML='<div class="sheet-head"><div><h2 id="panelTitulo">'+(id?'Editar proveedor':'Nuevo proveedor')+'</h2></div><button type="button" class="btn small" data-action="prov-cancel">Cancelar</button></div>'+
+    '<form id="pform" novalidate autocomplete="off"><div class="grid2">'+
+    campo('p-nombre','Nombre del proveedor',p.nombre||'',{req:1,full:1,ph:'Ej. Refacciones Tuxtla'})+
+    campo('p-telefono','WhatsApp',p.telefono||'',{type:'tel',inputmode:'tel',hint:'10 dígitos'})+
+    campo('p-productos','Qué te surte',p.productos||'',{ph:'Ej. Pantallas Samsung y Motorola, baterías'})+
+    campo('p-notas','Notas',p.notas||'',{type:'textarea',rows:3,full:1,ph:'Horario, envíos, tiempo de entrega'})+
+    '</div><p class="err" id="pError" role="alert" hidden></p>'+
+    '<div class="form-actions"><button type="submit" class="btn primary big">'+(id?'Guardar cambios':'Guardar proveedor')+'</button><button type="button" class="btn ghost big" data-action="prov-cancel">Cancelar</button></div></form>';
+  $('#sheet').scrollTop=0;
+  $('#pform').addEventListener('submit',function(ev){ev.preventDefault();guardarProv();});
+  setTimeout(function(){var c=$('#p-nombre');if(c)c.focus();},50);
+}
+function guardarProv(){
+  var nombre=$('#p-nombre').value.trim();
+  if(!nombre){var er=$('#pError');er.hidden=false;er.textContent='Falta el nombre del proveedor.';$('#p-nombre').focus();return;}
+  var prev=selId?findProv(selId):null;
+  var d=prev?Object.assign({},prev):{id:'prov-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),creado:new Date().toISOString()};
+  d.nombre=nombre;d.telefono=$('#p-telefono').value.trim();d.productos=$('#p-productos').value.trim();d.notas=$('#p-notas').value.trim();
+  upsert(provs,d);
+  pstore.save(d).then(function(){toast('Proveedor guardado');}).catch(function(){toast('No se pudo guardar el proveedor');});
+  abrirProvs();
+}
+
+/* ---------- acciones ---------- */
+var garFiltro='vigentes', garBusq='', formPreset=null;
+function garInfo(e){
+  var g=+e.garantiaDias||0;if(e.estatus!=='Entregado'||g<=0||!e.fechaEntrega)return null;
+  var vence=addDias(e.fechaEntrega,g),rest=diffDias(hoy(),vence);
+  return {vence:vence,rest:rest,estado:rest<0?'vencida':(rest<=7?'porvencer':'vigente')};
+}
+function reclamosDe(id){return equipos.filter(function(x){return x.garantiaDe===id;});}
+function msgGarantia(e){
+  var g=garInfo(e),n=(e.cliente||'').trim().split(/\s+/)[0]||'';
+  return saludoHora()+(n?', '+n:'')+'. 🛡️ *Garantía de tu reparación*\n\n'+
+    '• Folio: *'+e.id+'*\n• Equipo: '+nombreEq(e)+(e.servicio?'\n• Servicio: '+e.servicio:'')+'\n• Entregado: '+fmtFecha(e.fechaEntrega)+'\n• Garantía: '+e.garantiaDias+' días'+(g?', vigente hasta el *'+fmtFecha(g.vence)+'*':'')+
+    '\n\nLa garantía cubre únicamente la reparación realizada. Si presenta la misma falla, tráelo con tu folio y lo revisamos.\n\n'+firmaMsg(e);
+}
+function garLista(){
+  var box=$('#gar-lista');if(!box)return;
+  var todos=equipos.slice();
+  var filas;
+  if(garFiltro==='reclamos'){
+    filas=todos.filter(function(e){return !!e.garantiaDe;});
+  }else{
+    filas=todos.filter(function(e){var g=garInfo(e);if(!g)return false;
+      if(garFiltro==='vigentes')return g.estado!=='vencida';
+      if(garFiltro==='porvencer')return g.estado==='porvencer';
+      if(garFiltro==='vencidas')return g.estado==='vencida';
+      return true;});
+  }
+  if(garBusq)filas=filas.filter(function(e){var t=norm([e.id,e.cliente,e.telefono,e.marca,e.modelo,e.imei].join(' '));return garBusq.split(/\s+/).every(function(p){return t.indexOf(p)>-1;});});
+  filas.sort(function(a,b){var ga=garInfo(a),gb=garInfo(b);return (ga?ga.rest:9999)-(gb?gb.rest:9999)||String(b.id).localeCompare(String(a.id));});
+  if(!filas.length){box.innerHTML='<div class="empty"><strong>Sin resultados</strong>'+(garFiltro==='reclamos'?'Todavía no hay reclamos de garantía.':'No hay equipos con garantía en esta vista. La garantía corre desde que el equipo se marca como «Entregado».')+'</div>';return;}
+  box.innerHTML=filas.map(function(e){
+    var g=garInfo(e),rec=reclamosDe(e.id);
+    var pill=g?(g.estado==='vencida'?'<span class="pill bad">Vencida hace '+Math.abs(g.rest)+' d</span>':(g.estado==='porvencer'?'<span class="pill warn">Vence '+(g.rest===0?'hoy':'en '+g.rest+' d')+'</span>':'<span class="pill ok">Vigente · '+g.rest+' d</span>')):(e.garantiaDe?'<span class="pill info">Reclamo de '+esc(e.garantiaDe)+'</span>':'');
+    var wa=(g&&e.telefono)?linkWA(e.telefono,msgGarantia(e)):'';
+    return '<div class="prov" style="margin-bottom:10px"><div class="tec-fila"><div class="t"><strong>'+esc(e.id)+' · '+esc(nombreEq(e))+'</strong><div class="muted">'+esc(e.cliente)+(e.telefono?' · '+esc(e.telefono):'')+' · '+esc(nomLocal(e))+'</div></div><span class="tec-mini">'+pill+'</span></div>'+
+      (g?'<span class="muted">Entregado '+fmtFecha(e.fechaEntrega)+' · Garantía de '+e.garantiaDias+' días · vence el '+fmtFecha(g.vence)+'</span>':'<span class="muted">'+esc(e.falla||'')+' · '+esc(e.estatus)+'</span>')+
+      (rec.length?'<span class="muted">Reclamos: '+rec.map(function(x){return esc(x.id)+' ('+esc(x.estatus)+')';}).join(', ')+'</span>':'')+
+      '<div class="actions"><button type="button" class="btn small" data-action="tec-abrir" data-id="'+esc(e.id)+'">Ver equipo</button>'+
+      (g&&g.estado!=='vencida'?'<button type="button" class="btn small primary" data-action="gar-reclamar" data-id="'+esc(e.id)+'">Reclamar garantía</button>':'')+
+      (wa?'<a class="btn small" target="_blank" rel="noopener" href="'+esc(wa)+'">Enviar constancia por WhatsApp</a>':'')+'</div></div>';
+  }).join('');
+}
+function renderGarantias(){
+  var box=$('#vGar');if(!box)return;
+  var inf=equipos.map(garInfo).filter(Boolean);
+  var vig=inf.filter(function(g){return g.estado!=='vencida';}).length,por=inf.filter(function(g){return g.estado==='porvencer';}).length,ven=inf.filter(function(g){return g.estado==='vencida';}).length;
+  var rec=equipos.filter(function(e){return e.garantiaDe&&esAbierto(e);}).length;
+  $('#vistaSub').textContent='Equipos entregados con garantía y reclamos. La garantía corre desde la fecha de entrega.';
+  var chips=[['vigentes','Vigentes'],['porvencer','Por vencer (7 días)'],['vencidas','Vencidas'],['reclamos','Reclamos'],['todas','Todas']];
+  box.innerHTML='<section class="stats"><div class="stat c2"><span class="l">Garantías vigentes</span><span class="v">'+vig+'</span></div><div class="stat c1"><span class="l">Por vencer en 7 días</span><span class="v">'+por+'</span></div><div class="stat alert"><span class="l">Vencidas</span><span class="v">'+ven+'</span></div><div class="stat c0"><span class="l">Reclamos abiertos</span><span class="v">'+rec+'</span></div></section>'+
+    '<div class="tools"><div class="search"><input id="gar-bus" type="search" placeholder="Buscar por cliente, teléfono, equipo o folio" aria-label="Buscar garantía" autocomplete="off" value="'+esc(garBusq)+'"></div>'+
+    '<div class="chips" role="group" aria-label="Filtrar garantías">'+chips.map(function(c){return '<button type="button" class="chip'+(garFiltro===c[0]?' on':'')+'" data-action="gar-filtro" data-val="'+c[0]+'" aria-pressed="'+(garFiltro===c[0])+'">'+c[1]+'</button>';}).join('')+'</div></div>'+
+    '<div id="gar-lista"></div>';
+  garLista();
+}
+function reclamarGarantia(id){
+  var e=find(id);if(!e)return;
+  formPreset={garantiaDe:id,cliente:e.cliente,telefono:e.telefono,refNombre:e.refNombre,refTelefono:e.refTelefono,marca:e.marca,modelo:e.modelo,imei:e.imei,bloqueo:e.bloqueo,accesorios:[],estadoFisico:'',falla:'Garantía de '+id+': ',servicio:'Reparación en garantía',costo:0,anticipo:0,garantiaDias:0,localId:e.localId};
+  abrirForm(null);
+}
+/* ---------- piezas y pedidos ---------- */
+var CATS=['Pines de carga','Pilas','Flex','Pantallas','Chasis','Botones','Otra pieza'];
+var piezas=[], pedidos=[], pzstore=null, pdstore=null, pfAbierto='', pfDraft='';
+function lineasPz(){return piezas.filter(function(x){return x.id!=='_cfg';});}
+function pzCfg(){return piezas.filter(function(x){return x.id==='_cfg';})[0]||{id:'_cfg',mapa:{}};}
+function provDeCat(cat){var id=(pzCfg().mapa||{})[cat];return id&&findProv(id)?id:'';}
+function nomProv(id){var p=findProv(id);return p?p.nombre:'Sin proveedor';}
+function pzKey(cat,modelo,det){return norm([cat,modelo,det||''].join('|')).replace(/\s+/g,' ').trim();}
+function findPed(id){for(var i=0;i<pedidos.length;i++)if(pedidos[i].id===id)return pedidos[i];return null;}
+function sigPedidoId(){var n=0;pedidos.forEach(function(x){var m=/^PED-(\d+)$/.exec(x.id);if(m)n=Math.max(n,+m[1]);});return 'PED-'+('000'+(n+1)).slice(-4);}
+function lineaTxt(z){return z.categoria+(z.detalle?' · '+z.detalle:'')+(z.modelo?' · '+z.modelo:'')+' · x'+(z.cantidad||1);}
+function guardarPz(z){upsert(piezas,z);return pzstore.save(z).catch(function(){toast('No se pudo guardar la pieza');});}
+function agregarPieza(d){
+  var cat=d.categoria||'Otra pieza',cant=Math.max(1,parseInt(d.cantidad,10)||1);
+  var key=pzKey(cat,d.modelo,d.detalle);
+  var ex=lineasPz().filter(function(z){return z.estado!=='recibida'&&pzKey(z.categoria,z.modelo,z.detalle)===key;})[0];
+  var eq=d.equipoId?find(d.equipoId):null;
+  function ligar(z){
+    if(d.equipoId&&(z.equipoIds||[]).indexOf(d.equipoId)<0)z.equipoIds=(z.equipoIds||[]).concat([d.equipoId]);
+    return z;
+  }
+  var res;
+  if(ex){
+    var z=Object.assign({},ex);
+    if(ex.estado==='por pedir'){z.cantidad=(+ex.cantidad||1)+cant;res='sumada';}
+    else res='ya-pedida';
+    guardarPz(ligar(z));
+    toast(res==='sumada'?'Ya estaba en la lista por pedir: se sumó (x'+z.cantidad+').':'Ya estaba pedida en '+z.pedidoId+'. Se ligó a este equipo y no se vuelve a pedir.');
+  }else{
+    var z2=ligar({id:uid('pz-'),categoria:cat,detalle:d.detalle||'',modelo:d.modelo||'',cantidad:cant,proveedorId:d.proveedorId||provDeCat(cat),equipoIds:[],estado:'por pedir',pedidoId:'',creado:new Date().toISOString(),creadoPor:sesion?sesion.nombre:''});
+    guardarPz(z2);res='nueva';toast('Agregada a la lista por pedir');
+  }
+  if(eq&&['Recibido','En diagnóstico','En reparación'].indexOf(eq.estatus)>-1)cambiarEstatus(eq.id,'Esperando refacción',null,true);
+  return res;
+}
+function firmaPed(){return '*'+NEGOCIO+'*\n'+LEMA;}
+function mensajePedido(ped,lineas){
+  var l=[saludoHora()+'. Le escribimos de *'+NEGOCIO+'* para hacer un pedido 🛒','','*Pedido '+ped.id+'*'];
+  lineas.forEach(function(z,i){
+    var eqs=(z.equipoIds||[]).map(function(id){return id;}).join(', ');
+    l.push((i+1)+'. '+z.categoria+(z.detalle?' · '+z.detalle:'')+(z.modelo?' · '+z.modelo:'')+' — *x'+(z.cantidad||1)+'*'+(eqs?' (para '+eqs+')':' (stock)'));
+  });
+  l.push('','¿Nos confirma disponibilidad, precio y tiempo de entrega? Quedamos atentos. Muchas gracias.','',firmaPed());
+  return l.join('\n');
+}
+function mensajeFalla(ped,z,comentario){
+  return [saludoHora()+'. Le escribimos de *'+NEGOCIO+'* para reportar una pieza con falla ⚠️','',
+    '• Pedido: *'+(ped?ped.id:z.pedidoId)+'*'+(ped&&ped.recibido?' (recibido el '+fmtFecha(ped.recibido.slice(0,10))+')':''),
+    '• Pieza: '+z.categoria+(z.detalle?' · '+z.detalle:'')+(z.modelo?' · '+z.modelo:'')+' · x'+(z.cantidad||1),
+    ((z.equipoIds||[]).length?'• Equipo(s): '+z.equipoIds.join(', '):'• Era para stock'),
+    '• Qué pasó: '+comentario,'','Le pedimos nos indique cómo proceder (cambio o reposición). Muchas gracias.','',firmaPed()].filter(function(x){return x!==null;}).join('\n');
+}
+function generarPedido(provId){
+  var lineas=lineasPz().filter(function(z){return z.estado==='por pedir'&&(z.proveedorId||'')===(provId||'');});
+  var pv=findProv(provId);
+  if(!pv){toast('Elige primero un proveedor para esas piezas');return;}
+  if(!lineas.length)return;
+  var ped={id:sigPedidoId(),proveedorId:provId,estado:'pedido',creado:new Date().toISOString(),creadoPor:sesion?sesion.nombre:'',recibido:''};
+  var msg=mensajePedido(ped,lineas),wa=linkWA(pv.telefono,msg);
+  if(wa){try{window.open(wa,'_blank');}catch(x){}}
+  upsert(pedidos,ped);pdstore.save(ped).catch(function(){toast('No se pudo guardar el pedido');});
+  lineas.forEach(function(z){guardarPz(Object.assign({},z,{estado:'pedido',pedidoId:ped.id}));});
+  toast('Pedido '+ped.id+' generado'+(wa?'. Se abrió WhatsApp con el mensaje.':'. Falta el WhatsApp del proveedor para enviarlo.'));
+  renderPiezas();
+}
+function recibirPedido(id){
+  var ped=findPed(id);if(!ped||ped.estado==='recibido')return;
+  var n=Object.assign({},ped,{estado:'recibido',recibido:new Date().toISOString()});upsert(pedidos,n);pdstore.save(n).catch(function(){});
+  var mover={};
+  lineasPz().filter(function(z){return z.pedidoId===id;}).forEach(function(z){
+    guardarPz(Object.assign({},z,{estado:'recibida'}));
+    (z.equipoIds||[]).forEach(function(eid){mover[eid]=1;});
+  });
+  var c=0;Object.keys(mover).forEach(function(eid){var e=find(eid);if(e&&e.estatus==='Esperando refacción'){cambiarEstatus(eid,'En reparación');c++;}});
+  toast('Pedido '+id+' recibido'+(c?'. '+c+' equipo(s) pasaron a «En reparación».':'.'));
+  renderPiezas();
+}
+function selProv(id,sel,extra){
+  return '<select id="'+id+'"'+(extra||'')+'><option value="">Sin proveedor</option>'+provs.slice().sort(function(a,b){return norm(a.nombre).localeCompare(norm(b.nombre));}).map(function(p){return '<option value="'+esc(p.id)+'"'+(p.id===sel?' selected':'')+'>'+esc(p.nombre)+'</option>';}).join('')+'</select>';
+}
+function selCat(id,sel){return '<select id="'+id+'">'+CATS.map(function(c){return '<option'+(c===sel?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>';}
+function lineaHTML(z,opts){
+  opts=opts||{};
+  var eqs=(z.equipoIds||[]).map(function(id){return '<button type="button" class="btn small" data-action="tec-abrir" data-id="'+esc(id)+'">'+esc(id)+'</button>';}).join(' ');
+  var pill=z.falla?'<span class="pill '+(z.falla.estado==='repuesta'?'ok':'bad')+'">'+(z.falla.estado==='repuesta'?'Falla repuesta':'Falla reportada')+'</span>':'';
+  var h='<div class="prov" style="margin-bottom:8px"><div class="tec-fila"><div class="t"><strong>'+esc(z.categoria)+(z.detalle?' · '+esc(z.detalle):'')+'</strong><div class="muted">'+(z.modelo?esc(z.modelo)+' · ':'')+'Cantidad: '+(z.cantidad||1)+(z.proveedorId?' · '+esc(nomProv(z.proveedorId)):'')+'</div></div><span class="tec-mini">'+pill+(opts.quitar?'<button type="button" class="btn small danger" data-action="pz-quitar" data-id="'+esc(z.id)+'">Quitar</button>':'')+'</span></div>'+
+    (eqs?'<div class="tec-mini"><span class="muted">Para:</span> '+eqs+'</div>':'<span class="muted">Para stock (mayoreo)</span>')+
+    (opts.provSel?'<div class="campo"><label for="pzp-'+esc(z.id)+'">Proveedor</label>'+selProv('pzp-'+z.id,z.proveedorId)+'</div>':'');
+  if(opts.falla){
+    var ped=findPed(z.pedidoId);
+    if(z.falla){
+      var wa=ped?linkWA((findProv(ped.proveedorId)||{}).telefono,mensajeFalla(ped,z,z.falla.comentario)):'';
+      h+='<span class="muted">Qué pasó: '+esc(z.falla.comentario)+'</span><div class="actions">'+(wa?'<a class="btn small" target="_blank" rel="noopener" href="'+esc(wa)+'">Volver a enviar al proveedor</a>':'')+(z.falla.estado!=='repuesta'?'<button type="button" class="btn small" data-action="pz-repuesta" data-id="'+esc(z.id)+'">Marcar como repuesta</button>':'')+'</div>';
+    }else if(pfAbierto===z.id){
+      h+='<div class="campo"><label for="pf-txt">¿Qué pasó con la pieza?</label><textarea id="pf-txt" rows="3" placeholder="Ej. Llegó con el flex roto / no enciende / no es el modelo">'+esc(pfDraft)+'</textarea></div><div class="actions"><button type="button" class="btn primary small" data-action="pz-falla-enviar" data-id="'+esc(z.id)+'">Generar mensaje al proveedor</button><button type="button" class="btn small" data-action="pz-falla-no">Cancelar</button></div>';
+    }else{
+      h+='<div class="actions"><button type="button" class="btn small" data-action="pz-falla" data-id="'+esc(z.id)+'">Reportar pieza fallada</button></div>';
+    }
+  }
+  return h+'</div>';
+}
+function renderPiezas(){
+  var box=$('#vPed');if(!box)return;
+  var ls=lineasPz(),admin=esAdmin();
+  $('#vistaSub').textContent='Pilas, pantallas, flex, pines de carga, chasis y botones: lo que se pide al proveedor, lo que va en camino y lo que ya llegó.';
+  var porPedir=ls.filter(function(z){return z.estado==='por pedir';});
+  var grupos={};porPedir.forEach(function(z){var k=z.proveedorId||'';(grupos[k]=grupos[k]||[]).push(z);});
+  var h='<div class="sec"><h3>Agregar pieza a la lista</h3><div class="grid2">'+
+    '<div class="campo"><label for="np-cat">Pieza</label>'+selCat('np-cat','Pantallas')+'</div>'+
+    '<div class="campo"><label for="np-det">Detalle (opcional)</label><input id="np-det" type="text" autocomplete="off" placeholder="Ej. OLED con marco"></div>'+
+    '<div class="campo"><label for="np-mod">Modelo del celular</label><input id="np-mod" type="text" autocomplete="off" placeholder="Ej. Samsung A15"></div>'+
+    '<div class="campo"><label for="np-cant">Cantidad</label><input id="np-cant" type="number" min="1" step="1" value="1"></div>'+
+    '<div class="campo full"><label for="np-prov">Proveedor</label>'+selProv('np-prov',provDeCat('Pantallas'))+'</div></div>'+
+    '<p class="hint">Si es para un equipo concreto, agrégala desde el detalle del equipo. Aquí es para stock (mayoreo). Si esa pieza ya está en la lista o ya fue pedida, no se duplica.</p>'+
+    '<div class="actions"><button type="button" class="btn primary" data-action="pz-agregar">Agregar a la lista</button></div></div>';
+  h+='<div class="sec"><h3>Por pedir ('+porPedir.length+')</h3>';
+  if(!porPedir.length)h+='<p class="muted">No hay piezas por pedir.</p>';
+  Object.keys(grupos).forEach(function(k){
+    h+='<div class="prov" style="margin-bottom:12px;gap:8px"><div class="urow"><strong>'+esc(k?nomProv(k):'Sin proveedor asignado')+'</strong><span class="pill info">'+grupos[k].length+' pieza(s)</span></div>'+
+      grupos[k].map(function(z){return lineaHTML(z,{quitar:1,provSel:!k});}).join('')+
+      (k?'<div class="actions"><button type="button" class="btn primary" data-action="pz-generar" data-prov="'+esc(k)+'">Generar pedido y enviar por WhatsApp</button></div>':'<p class="hint err">Elige un proveedor para cada pieza para poder generar el pedido.</p>')+'</div>';
+  });
+  h+='</div>';
+  var enCamino=pedidos.filter(function(p){return p.estado==='pedido';}).sort(function(a,b){return String(b.creado).localeCompare(String(a.creado));});
+  h+='<div class="sec"><h3>Pedidos en camino ('+enCamino.length+')</h3>';
+  if(!enCamino.length)h+='<p class="muted">No hay pedidos en camino.</p>';
+  h+=enCamino.map(function(p){
+    var ln=ls.filter(function(z){return z.pedidoId===p.id;}),pv=findProv(p.proveedorId);
+    var wa=pv?linkWA(pv.telefono,mensajePedido(p,ln)):'';
+    return '<div class="prov" style="margin-bottom:12px;gap:8px"><div class="urow"><strong>'+esc(p.id)+' · '+esc(nomProv(p.proveedorId))+'</strong><span class="pill warn">En camino · '+esc(fmtFecha(String(p.creado).slice(0,10)))+'</span></div>'+
+      ln.map(function(z){return lineaHTML(z,{});}).join('')+
+      '<div class="actions"><button type="button" class="btn primary" data-action="pz-recibido" data-id="'+esc(p.id)+'">Pedido recibido</button>'+(wa?'<a class="btn" target="_blank" rel="noopener" href="'+esc(wa)+'">Reenviar por WhatsApp</a>':'')+'</div></div>';
+  }).join('')+'</div>';
+  var recib=pedidos.filter(function(p){return p.estado==='recibido';}).sort(function(a,b){return String(b.recibido).localeCompare(String(a.recibido));}).slice(0,8);
+  h+='<div class="sec"><h3>Recibidos</h3>';
+  if(!recib.length)h+='<p class="muted">Todavía no hay pedidos recibidos.</p>';
+  h+=recib.map(function(p){
+    var ln=ls.filter(function(z){return z.pedidoId===p.id;});
+    return '<div class="prov" style="margin-bottom:12px;gap:8px"><div class="urow"><strong>'+esc(p.id)+' · '+esc(nomProv(p.proveedorId))+'</strong><span class="pill ok">Recibido · '+esc(fmtFecha(String(p.recibido).slice(0,10)))+'</span></div>'+ln.map(function(z){return lineaHTML(z,{falla:1});}).join('')+'</div>';
+  }).join('')+'</div>';
+  if(admin){
+    h+='<div class="sec"><h3>Proveedor de cada pieza</h3><p class="hint">Define a quién se le pide cada tipo de pieza. Al agregarla, el proveedor se pone solo.</p><div class="grid2">'+
+      CATS.map(function(c,i){return '<div class="campo"><label for="pzmap-'+i+'">'+esc(c)+'</label>'+selProv('pzmap-'+i,provDeCat(c))+'</div>';}).join('')+'</div></div>';
+  }
+  box.innerHTML=h;
+}
+function piezasEquipoHTML(e){
+  var ls=lineasPz().filter(function(z){return (z.equipoIds||[]).indexOf(e.id)>-1;});
+  var h='<div class="sec"><h3>Piezas de este equipo</h3>';
+  if(ls.length)h+=ls.map(function(z){var p=z.pedidoId?findPed(z.pedidoId):null;return '<div class="prov" style="margin-bottom:6px"><div class="tec-fila"><div class="t"><strong>'+esc(z.categoria)+(z.detalle?' · '+esc(z.detalle):'')+'</strong><div class="muted">'+esc(z.modelo||'')+' · x'+(z.cantidad||1)+' · '+esc(nomProv(z.proveedorId))+'</div></div><span class="pill '+(z.estado==='recibida'?'ok':(z.estado==='pedido'?'warn':'idle'))+'">'+(z.estado==='recibida'?'Recibida':(z.estado==='pedido'?'Pedida '+esc(z.pedidoId):'Por pedir'))+'</span></div></div>';}).join('');
+  else h+='<p class="muted">Sin piezas registradas.</p>';
+  h+='<div class="grid2"><div class="campo"><label for="dpz-cat">Pieza que necesita</label>'+selCat('dpz-cat','Pantallas')+'</div>'+
+    '<div class="campo"><label for="dpz-det">Detalle (opcional)</label><input id="dpz-det" type="text" autocomplete="off"></div>'+
+    '<div class="campo"><label for="dpz-mod">Modelo</label><input id="dpz-mod" type="text" autocomplete="off" value="'+esc(nombreEq(e))+'"></div>'+
+    '<div class="campo"><label for="dpz-cant">Cantidad</label><input id="dpz-cant" type="number" min="1" step="1" value="1"></div>'+
+    '<div class="campo full"><label for="dpz-prov">Proveedor</label>'+selProv('dpz-prov',provDeCat('Pantallas'))+'</div></div>'+
+    '<div class="actions"><button type="button" class="btn" data-action="pz-agregar-eq">Agregar a la lista por pedir</button></div>'+
+    '<p class="hint">Al agregarla, el equipo pasa a «Esperando refacción». Si esa pieza ya fue pedida, no se pide otra vez.</p></div>';
+  return h;
+}
+var tecSel='', tecPer='mes';
+var EST_TRABAJO=['En diagnóstico','Esperando refacción','En reparación','Listo para entrega'];
+function esTecnico(){return !!sesion&&sesion.rol==='tecnico';}
+function puedeTecnico(){return esAdmin()||esTecnico();}
+function tecnicos(){return usuarios.filter(function(u){return u.rol==='tecnico'&&u.activo!==false;});}
+function pctDe(e){
+  if(e.tecnicoPct!=null&&e.tecnicoPct!=='')return +e.tecnicoPct;
+  var u=findUser(e.tecnicoId);return(u&&u.comision!=null&&u.comision!=='')?+u.comision:30;
+}
+function pagoTec(e){return Math.max(0,ganancia(e))*pctDe(e)/100;}
+function terminada(e){return e.estatus==='Listo para entrega'||e.estatus==='Entregado';}
+function fechaTerm(e){return String(e.fechaListo||e.fechaEntrega||e.fechaIngreso||'');}
+function enPeriodo(e){
+  if(tecPer==='todo')return true;
+  var f=fechaTerm(e).slice(0,7),m=hoy().slice(0,7);
+  if(tecPer==='mes')return f===m;
+  var d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);return f===ymd(d).slice(0,7);
+}
+function asignarTec(n,u){n.tecnicoId=u.id;n.tecnicoNombre=u.nombre;n.tecnicoPct=(u.comision!=null&&u.comision!=='')?+u.comision:30;}
+function cambiarEstatus(id,est,extra,silencio){
+  var e=find(id);if(!e||(e.estatus===est&&!extra))return;
+  var n=Object.assign({},e),cambia=e.estatus!==est;
+  if(cambia){
+    n.estatus=est;
+    n.historial=(e.historial||[]).concat([{estatus:est,en:new Date().toISOString(),por:sesion?sesion.nombre:''}]);
+    n.fechaEntrega=SALIDAS.indexOf(est)>-1?hoy():'';
+    if(est!=='Entregado'&&e.estatus==='Entregado')n.pagado=false;
+    if(est==='Listo para entrega'||(est==='Entregado'&&!e.fechaListo))n.fechaListo=hoy();
+    else if(est!=='Entregado'&&est!=='Listo para entrega')n.fechaListo='';
+    if(esTecnico()&&!e.tecnicoId&&EST_TRABAJO.indexOf(est)>-1)asignarTec(n,sesion);
+  }
+  if(extra)Object.assign(n,extra);
+  recien=false;
+  guardar(n).then(function(){if(!silencio)toast(cambia?'Estatus: '+est+'. El mensaje para el cliente ya está listo.':'Equipo asignado');}).catch(function(){});
+}
+function tomarEquipo(id){
+  var e=find(id);if(!e)return;
+  var u=esTecnico()?sesion:findUser(tecSel);
+  if(!u||u.rol!=='tecnico'){toast('Elige primero un técnico arriba');return;}
+  var n={};asignarTec(n,u);
+  cambiarEstatus(id,'En reparación',n);
+}
+function fibraSVG(vw,vh,n,seed,vertical,clase){
+  var sd=seed;function r(){sd=(sd*16807)%2147483647;return sd/2147483647;}
+  var cols=['#ffffff','#9df1ff','#ffffff','#c9f7ff','#6fe6ff'],hilos='',luces='';
+  for(var i=0;i<n;i++){
+    var a=vertical?[r()*vw,-20]:[-20,r()*vh];
+    var b=vertical?[r()*vw,vh+20]:[vw+20,r()*vh];
+    var c1=vertical?[r()*vw,vh*(.25+r()*.2)]:[vw*(.25+r()*.2),r()*vh];
+    var c2=vertical?[r()*vw,vh*(.6+r()*.2)]:[vw*(.6+r()*.2),r()*vh];
+    var d='M'+a[0].toFixed(0)+' '+a[1].toFixed(0)+' C'+c1[0].toFixed(0)+' '+c1[1].toFixed(0)+','+c2[0].toFixed(0)+' '+c2[1].toFixed(0)+','+b[0].toFixed(0)+' '+b[1].toFixed(0);
+    hilos+='<path class="fb-hilo" pathLength="1000" d="'+d+'"/>';
+    luces+='<path class="fb-luz" pathLength="1000" d="'+d+'" stroke="'+cols[i%cols.length]+'" style="--d:'+(7+r()*8).toFixed(1)+'s;--w:-'+(r()*12).toFixed(1)+'s"/>';
+  }
+  return '<svg class="fibra '+(clase||'')+'" viewBox="0 0 '+vw+' '+vh+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="fb-g'+(clase||'')+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".15"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#bff3ff" stop-opacity=".2"/></linearGradient></defs>'+hilos.replace(/url\(#fb-g\)/g,'')+luces+'</svg>';
+}
+var vista='dash';
+var VISTAS={dash:['vDash','navDash','Dashboard'],tec:['vTec','btnTec','Panel técnico'],gar:['vGar','navGar','Garantías'],ped:['vPed','navPed','Piezas y pedidos']};
+function aplicarVista(){
+  if(!sesion||(vista==='tec'&&!puedeTecnico()))vista='dash';
+  Object.keys(VISTAS).forEach(function(k){var el=$('#'+VISTAS[k][0]),nv=$('#'+VISTAS[k][1]);if(el)el.hidden=k!==vista;if(nv)nv.classList.toggle('on',k===vista);});
+  var t=$('#vistaTitulo');if(t)t.textContent=VISTAS[vista][2];
+  if(vista==='dash'){var sb=$('#vistaSub');if(sb)sb.textContent=sesion?'Bienvenido, '+sesion.nombre:'';}
+}
+function setVista(v){vista=VISTAS[v]?v:'dash';aplicarVista();if(vista==='tec'){if(esTecnico())tecSel=sesion.id;else if(!tecSel)tecSel='todos';renderTecnico();}if(vista==='gar')renderGarantias();if(vista==='ped')renderPiezas();window.scrollTo(0,0);}
+function abrirTecnico(){if(!puedeTecnico())return;setVista('tec');}
+function renderTecnico(){
+  var sh=$('#vTec');
+  var admin=esAdmin(),tecs=tecnicos();
+  var sel=esTecnico()?sesion.id:tecSel;
+  if(admin&&sel!=='todos'&&!findUser(sel))sel=tecSel='todos';
+  var propia=function(e){return sel==='todos'?!!e.tecnicoId:e.tecnicoId===sel;};
+  var libres=equipos.filter(function(e){return !e.tecnicoId&&esAbierto(e)&&e.estatus!=='Listo para entrega';}).sort(function(a,b){return String(a.fechaIngreso).localeCompare(String(b.fechaIngreso));});
+  var proceso=equipos.filter(function(e){return propia(e)&&esAbierto(e)&&e.estatus!=='Listo para entrega';});
+  var hechas=equipos.filter(function(e){return propia(e)&&terminada(e)&&enPeriodo(e);}).sort(function(a,b){return fechaTerm(b).localeCompare(fechaTerm(a));});
+  var util=0,pago=0,pend=0,est=0;
+  hechas.forEach(function(e){util+=Math.max(0,ganancia(e));pago+=pagoTec(e);if(!e.pagoTecnico)pend+=pagoTec(e);});
+  proceso.forEach(function(e){est+=pagoTec(e)||Math.max(0,ganancia(e))*30/100;});
+  var nom=sel==='todos'?'Todos los técnicos':(findUser(sel)||{}).nombre;
+  var pc=sel!=='todos'&&findUser(sel)&&findUser(sel).comision!=null&&findUser(sel).comision!==''?+findUser(sel).comision:30;
+  var h='';
+  $('#vistaSub').textContent=(nom||'')+' · pago: '+(sel==='todos'?'30% (o lo definido a cada técnico)':pc+'% de la utilidad')+' de cada reparación.';
+  if(admin){
+    h+='<div class="campo"><label for="tec-sel">Técnico</label><select id="tec-sel"><option value="todos"'+(sel==='todos'?' selected':'')+'>Todos los técnicos</option>'+
+      tecs.map(function(u){return '<option value="'+esc(u.id)+'"'+(u.id===sel?' selected':'')+'>'+esc(u.nombre)+'</option>';}).join('')+'</select>'+
+      (tecs.length?'':'<span class="hint">Aún no hay técnicos. Créalos en Administrar → Nuevo usuario → Rol «Técnico».</span>')+'</div>';
+  }
+  h+='<div class="chips" role="group" aria-label="Periodo" style="margin:10px 0">'+[['mes','Este mes'],['ant','Mes anterior'],['todo','Todo']].map(function(p){return '<button type="button" class="chip'+(tecPer===p[0]?' on':'')+'" data-action="tec-per" data-val="'+p[0]+'" aria-pressed="'+(tecPer===p[0])+'">'+p[1]+'</button>';}).join('')+'</div>';
+  h+='<div class="tec-grid"><div class="k"><small>Reparaciones</small><b>'+hechas.length+'</b></div><div class="k"><small>Utilidad generada</small><b>'+mx(util)+'</b></div><div class="k pago"><small>Pago al técnico</small><b>'+mx(pago)+'</b></div><div class="k"><small>Por pagar</small><b>'+mx(pend)+'</b></div><div class="k"><small>En proceso (estimado)</small><b>'+mx(est)+'</b></div></div>';
+  h+='<p class="hint">Utilidad = lo que se cobra al cliente − el costo de la refacción. El pago cuenta cuando el equipo queda «Listo para entrega» o «Entregado».</p>';
+
+  /* en proceso */
+  h+='<div class="sec"><h3>'+(esTecnico()?'Mis equipos en proceso':'Equipos en proceso')+' ('+proceso.length+')</h3>';
+  if(!proceso.length)h+='<p class="muted">No hay equipos en proceso. Toma uno de la lista de abajo.</p>';
+  h+=proceso.map(function(e){
+    var ut=Math.max(0,ganancia(e)),py=pagoTec(e);
+    var chips=EST_TRABAJO.map(function(st){return '<button type="button" class="chip'+(st===e.estatus?' on':'')+'" data-action="tec-est" data-id="'+esc(e.id)+'" data-val="'+esc(st)+'" aria-pressed="'+(st===e.estatus)+'">'+esc(st)+'</button>';}).join('');
+    return '<div class="prov" style="margin-bottom:10px"><div class="tec-fila"><div class="t"><strong>'+esc(e.id)+' · '+esc(nombreEq(e))+'</strong><div class="muted">'+esc(e.falla||'')+' · '+esc(e.cliente)+(sel==='todos'&&e.tecnicoNombre?' · Técnico: '+esc(e.tecnicoNombre):'')+'</div></div><span class="pill info">'+esc(e.estatus)+'</span></div>'+
+      '<div class="chips">'+chips+'</div>'+
+      '<div class="tec-grid"><div class="k"><small>Cobro al cliente</small><b>'+mx(e.costo)+'</b></div>'+
+      '<div class="k"><small>Costo refacción</small><input type="number" inputmode="decimal" min="0" step="any" data-tecref="'+esc(e.id)+'" value="'+(+e.costoRefaccion||'')+'" placeholder="0" aria-label="Costo de la refacción de '+esc(e.id)+'"></div>'+
+      '<div class="k"><small>Utilidad</small><b>'+mx(ut)+'</b></div>'+
+      '<div class="k pago"><small>Pago ('+pctDe(e)+'%)</small><b>'+mx(py)+'</b></div></div>'+
+      (+e.costo>0?'':'<p class="hint err">Falta el cobro al cliente. Se captura al editar el equipo.</p>')+
+      '<div class="actions"><button type="button" class="btn small" data-action="tec-abrir" data-id="'+esc(e.id)+'">Ver equipo</button></div></div>';
+  }).join('')+'</div>';
+
+  /* disponibles */
+  h+='<div class="sec"><h3>Equipos por tomar ('+libres.length+')</h3>';
+  if(!libres.length)h+='<p class="muted">No hay equipos sin técnico.</p>';
+  h+=libres.map(function(e){
+    return '<div class="prov" style="margin-bottom:8px"><div class="tec-fila"><div class="t"><strong>'+esc(e.id)+' · '+esc(nombreEq(e))+'</strong><div class="muted">'+esc(e.falla||'')+' · '+esc(nomLocal(e))+'</div></div>'+
+      '<span class="tec-mini"><span class="pill idle">'+esc(e.estatus)+'</span><button type="button" class="btn small primary" data-action="tec-tomar" data-id="'+esc(e.id)+'">Tomar y reparar</button></span></div></div>';
+  }).join('')+'</div>';
+
+  /* terminadas */
+  h+='<div class="sec"><h3>Reparaciones terminadas ('+hechas.length+')</h3>';
+  if(!hechas.length)h+='<p class="muted">Todavía no hay reparaciones terminadas en este periodo.</p>';
+  h+=hechas.map(function(e){
+    return '<div class="prov" style="margin-bottom:8px"><div class="tec-fila"><div class="t"><strong>'+esc(e.id)+' · '+esc(nombreEq(e))+'</strong><div class="muted">'+(sel==='todos'&&e.tecnicoNombre?esc(e.tecnicoNombre)+' · ':'')+'Cobro '+mx(e.costo)+' − refacción '+mx(e.costoRefaccion)+' = utilidad '+mx(Math.max(0,ganancia(e)))+'</div></div>'+
+      '<span class="tec-mini"><strong>'+mx(pagoTec(e))+'</strong><span class="pill '+(e.pagoTecnico?'ok':'warn')+'">'+(e.pagoTecnico?'Pagado':'Por pagar')+'</span>'+
+      (admin?'<button type="button" class="btn small" data-action="tec-pago" data-id="'+esc(e.id)+'">'+(e.pagoTecnico?'Deshacer pago':'Marcar pagado')+'</button>':'')+'</span></div></div>';
+  }).join('')+'</div>';
+  sh.innerHTML=h;
+}
+function copiar(texto,msg){
+  function ok(){toast(msg);}
+  function fallo(){
+    var box=$('#copiaManual');
+    if(box){box.hidden=false;var ta=box.querySelector('textarea');ta.value=texto;ta.focus();ta.select();}
+    toast('Selecciona el texto y cópialo');
+  }
+  try{navigator.clipboard.writeText(texto).then(ok,fallo);}catch(e){fallo();}
+}
+function csvCelda(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function exportar(){
+  if(!descargas){toast('La descarga no está disponible aquí');return;}
+  var cols=[['Folio','id'],['Fecha ingreso','fechaIngreso'],['Local','_local'],['Cajero','cajeroNombre'],['Cliente','cliente'],['Teléfono','telefono'],['Persona de referencia','refNombre'],['Teléfono de referencia','refTelefono'],['Marca','marca'],['Modelo','modelo'],['IMEI / serie','imei'],['Falla','falla'],['Servicio','servicio'],['Costo','costo'],['Anticipo','anticipo'],['Refacción','refaccion'],['Proveedor','_prov'],['Costo refacción','costoRefaccion'],['Técnico','tecnicoNombre'],['Pago técnico','_pagotec'],['Garantía de','garantiaDe'],['Estatus','estatus'],['Fecha prometida','fechaPrometida'],['Fecha salida','fechaEntrega'],['Garantía (días)','garantiaDias'],['Notas','notas']];
+  var filas=equipos.slice().sort(function(a,b){return a.id.localeCompare(b.id);}).map(function(e){
+    var x=Object.assign({},e),p=findProv(e.proveedorId);x._prov=p?p.nombre:'';x._pagotec=(e.tecnicoId&&terminada(e))?pagoTec(e):'';x._local=nomLocal(e);
+    return cols.map(function(c){return csvCelda(x[c[1]]);}).join(',');
+  });
+  var csv='﻿'+cols.map(function(c){return csvCelda(c[0]);}).join(',')+'\n'+filas.join('\n');
+  descargas.save({filename:'equipos-gsm-soluciones-'+hoy()+'.csv',data:csv}).then(function(){toast('Archivo guardado');}).catch(function(e){if(e&&e.code==='declined')return;toast('No se pudo guardar el archivo');});
+}
+
+document.addEventListener('click',function(ev){
+  if(ev.target===$('#panel')&&(modo==='detalle'||modo==='prov'||modo==='admin'||modo==='tecnico')){cerrarPanel();return;}
+  var b=ev.target.closest('[data-action]');if(!b)return;
+  var a=b.getAttribute('data-action');
+  if(a==='nuevo')abrirForm(null);
+  else if(a==='abrir')abrirDetalle(b.getAttribute('data-id'));
+  else if(a==='cerrar')cerrarPanel();
+  else if(a==='cancelar-form')cancelarForm();
+  else if(a==='descartar')salirForm();
+  else if(a==='seguir'){$('#formActions').innerHTML=accionesForm();}
+  else if(a==='editar')abrirForm(selId);
+  else if(a==='filtro'){filtro=b.getAttribute('data-val');renderFiltros();renderLista();}
+  else if(a==='estatus')cambiarEstatus(selId,b.getAttribute('data-val'));
+  else if(a==='entregar'){var e=find(selId);if(e)cambiarEstatus(selId,'Entregado',{pagado:true});}
+  else if(a==='pagado'){var e2=find(selId);if(e2){var n=Object.assign({},e2,{pagado:true});guardar(n).then(function(){toast('Saldo marcado como pagado');}).catch(function(){});}}
+  else if(a==='fmt'){pref.fmt=b.getAttribute('data-val')==='carta'?'carta':'80';guardarPref();renderDetalle();}
+  else if(a==='ticket'){var et=find(selId);if(et)generarTicket(et,pref.fmt);}
+  else if(a==='imprimir'){var ei=find(selId),wi=null;try{wi=window.open('','_blank');}catch(x){wi=null;}if(ei)imprimirTicket(ei,pref.fmt,wi);}
+  else if(a==='vista'){verTicket=!verTicket;renderDetalle();}
+  else if(a==='copiar-msg'){var ta=$('#msgCliente');if(ta)copiar(ta.value,'Mensaje copiado');}
+  else if(a==='copiar-recibo'){var e4=find(selId);if(e4)copiar(textoRecibo(e4),'Recibo copiado');}
+  else if(a==='eliminar'){confirmando=true;renderDetalle();}
+  else if(a==='eliminar-no'){confirmando=false;renderDetalle();}
+  else if(a==='eliminar-si'){
+    var id=selId;
+    equipos=equipos.filter(function(x){return x.id!==id;});cerrarPanel();renderTodo();
+    store.remove(id).then(function(){toast('Registro eliminado');}).catch(function(){toast('No se pudo eliminar');});
+  }
+  else if(a==='exportar')exportar();
+  else if(a==='salir')cerrarSesion();
+  else if(a==='ver-pin'){var pi=$('#lg-pin');if(pi){var ver=pi.type==='password';pi.type=ver?'text':'password';b.textContent=ver?'Ocultar':'Mostrar';}}
+  else if(a==='mipass')abrirMiPass();
+  else if(a==='lg-olvide'){lgOlvide=true;lgOwner=false;lgKey='';renderLogin();}
+  else if(a==='lg-olvide-off'){lgOlvide=false;lgKey='';renderLogin();}
+  else if(a==='adm-tel-guardar')guardarAdminTel();
+  else if(a==='mipass-cancel')cerrarPanel();
+  else if(a==='lg-owner'){lgOwner=true;lgOlvide=false;lgKey='';renderLogin();}
+  else if(a==='lg-owner-off'){lgOwner=false;lgKey='';renderLogin();}
+  else if(a==='admin')abrirAdmin();
+  else if(a==='loc-nueva')abrirLocForm(null);
+  else if(a==='loc-editar')abrirLocForm(b.getAttribute('data-id'));
+  else if(a==='loc-cancel')abrirAdmin();
+  else if(a==='loc-del'){locDel=b.getAttribute('data-id');renderAdmin();}
+  else if(a==='loc-del-no'){locDel=null;renderAdmin();}
+  else if(a==='loc-del-si'){var lid=b.getAttribute('data-id');locDel=null;var lx=findLocal(lid);if(lx&&!equipos.some(function(e){return e.localId===lid;})&&!usuarios.some(function(u){return u.localId===lid;})){locales=locales.filter(function(x){return x.id!==lid;});lstore.remove(lid).then(function(){toast('Sucursal eliminada');}).catch(function(){toast('No se pudo eliminar');});renderLocalSel();renderTodo();}renderAdmin();}
+  else if(a==='clave-guardar')guardarClave();
+  else if(a==='user-nuevo')abrirUserForm(null);
+  else if(a==='user-editar')abrirUserForm(b.getAttribute('data-id'));
+  else if(a==='user-cancel')abrirAdmin();
+  else if(a==='user-toggle')alternarUser(b.getAttribute('data-id'));
+  else if(a==='user-del'){userDel=b.getAttribute('data-id');renderAdmin();}
+  else if(a==='user-del-no'){userDel=null;renderAdmin();}
+  else if(a==='user-del-si')eliminarUser(b.getAttribute('data-id'));
+  else if(a==='provs')abrirProvs();
+  else if(a==='tecnico')abrirTecnico();
+  else if(a==='ir')setVista(b.getAttribute('data-val'));
+  else if(a==='pz-agregar'){
+    var nm=$('#np-mod').value.trim();
+    agregarPieza({categoria:$('#np-cat').value,detalle:$('#np-det').value.trim(),modelo:nm,cantidad:$('#np-cant').value,proveedorId:$('#np-prov').value});
+    renderPiezas();
+  }
+  else if(a==='pz-agregar-eq'){var ee=find(selId);if(ee){agregarPieza({categoria:$('#dpz-cat').value,detalle:$('#dpz-det').value.trim(),modelo:$('#dpz-mod').value.trim(),cantidad:$('#dpz-cant').value,proveedorId:$('#dpz-prov').value,equipoId:ee.id});}}
+  else if(a==='pz-quitar'){var qz=lineasPz().filter(function(x){return x.id===b.getAttribute('data-id');})[0];if(qz&&qz.estado==='por pedir'){piezas=piezas.filter(function(x){return x.id!==qz.id;});pzstore.remove(qz.id).catch(function(){});renderPiezas();}}
+  else if(a==='pz-generar')generarPedido(b.getAttribute('data-prov'));
+  else if(a==='pz-recibido')recibirPedido(b.getAttribute('data-id'));
+  else if(a==='pz-falla'){pfAbierto=b.getAttribute('data-id');pfDraft='';renderPiezas();}
+  else if(a==='pz-falla-no'){pfAbierto='';pfDraft='';renderPiezas();}
+  else if(a==='pz-falla-enviar'){
+    var fz=lineasPz().filter(function(x){return x.id===b.getAttribute('data-id');})[0],ft=($('#pf-txt')||{}).value||'';
+    if(!fz)return;
+    if(!ft.trim()){toast('Escribe qué pasó con la pieza');return;}
+    var fp=findPed(fz.pedidoId),fv=fp?findProv(fp.proveedorId):null,fw=fv?linkWA(fv.telefono,mensajeFalla(fp,fz,ft.trim())):'';
+    if(fw){try{window.open(fw,'_blank');}catch(x){}}
+    guardarPz(Object.assign({},fz,{falla:{comentario:ft.trim(),fecha:new Date().toISOString(),estado:'reportada'}}));
+    pfAbierto='';pfDraft='';toast(fw?'Reporte listo. Se abrió WhatsApp con el mensaje.':'Reporte guardado. Falta el WhatsApp del proveedor para enviarlo.');renderPiezas();
+  }
+  else if(a==='pz-repuesta'){var rz=lineasPz().filter(function(x){return x.id===b.getAttribute('data-id');})[0];if(rz&&rz.falla){guardarPz(Object.assign({},rz,{falla:Object.assign({},rz.falla,{estado:'repuesta'})}));renderPiezas();}}
+  else if(a==='gar-reclamar')reclamarGarantia(b.getAttribute('data-id'));
+  else if(a==='gar-filtro'){garFiltro=b.getAttribute('data-val');renderGarantias();}
+  else if(a==='tec-per'){tecPer=b.getAttribute('data-val');renderTecnico();}
+  else if(a==='tec-est')cambiarEstatus(b.getAttribute('data-id'),b.getAttribute('data-val'));
+  else if(a==='tec-tomar')tomarEquipo(b.getAttribute('data-id'));
+  else if(a==='tec-abrir')abrirDetalle(b.getAttribute('data-id'));
+  else if(a==='tec-pago'){var ep=find(b.getAttribute('data-id'));if(ep&&esAdmin())guardar(Object.assign({},ep,{pagoTecnico:!ep.pagoTecnico})).then(function(){toast(ep.pagoTecnico?'Pago deshecho':'Pago marcado');}).catch(function(){});}
+  else if(a==='prov-nuevo')abrirProvForm(null);
+  else if(a==='prov-editar')abrirProvForm(b.getAttribute('data-id'));
+  else if(a==='prov-cancel')abrirProvs();
+  else if(a==='prov-del'){provDel=b.getAttribute('data-id');renderProvs();}
+  else if(a==='prov-del-no'){provDel=null;renderProvs();}
+  else if(a==='prov-del-si'){
+    var pid=b.getAttribute('data-id');provDel=null;
+    provs=provs.filter(function(x){return x.id!==pid;});renderProvs();
+    pstore.remove(pid).then(function(){toast('Proveedor eliminado');}).catch(function(){toast('No se pudo eliminar');});
+  }
+});
+document.addEventListener('input',function(ev){
+  if(ev.target.id==='gar-bus'){garBusq=norm(ev.target.value).trim();garLista();return;}
+  if(ev.target.id==='pf-txt'){pfDraft=ev.target.value;return;}
+  if(ev.target.id!=='msgCliente')return;
+  var e=find(selId);if(!e)return;
+  msgDraft={key:e.id+'|'+e.estatus,text:ev.target.value};
+  var l=$('#waCliente'),w=linkWA(e.telefono,ev.target.value);
+  if(l&&w)l.setAttribute('href',w);
+  var lr=$('#waRef'),wr=linkWA(e.refTelefono,msgRef(e,ev.target.value));
+  if(lr&&wr)lr.setAttribute('href',wr);
+});
+document.addEventListener('keydown',function(ev){
+  if(ev.key!=='Escape'||$('#panel').hidden)return;
+  if(modo==='form')cancelarForm();
+  else if(modo==='provform')abrirProvs();
+  else if(modo==='userform'||modo==='locform')abrirAdmin();
+  else cerrarPanel();
+});
+$('#buscar').addEventListener('input',function(){busqueda=norm(this.value).trim();renderLista();});
+
+/* ---------- usuarios, locales y acceso ---------- */
+var locales=[], usuarios=[], sesion=null, localFiltro='todos', locListo=false, usrListo=false, lstore=null, ustore=null;
+var config=[], cfgListo=false, cstore=null, migrado=false;
+var intentos=0, bloqueoHasta=0, lgLocal='', lgOwner=false, lgOlvide=false, lgFalla=false, lgKey='', userDel=null;
+function esAdmin(){return !!sesion&&sesion.rol==='admin';}
+function findLocal(id){for(var i=0;i<locales.length;i++)if(locales[i].id===id)return locales[i];return null;}
+function findUser(id){for(var i=0;i<usuarios.length;i++)if(usuarios[i].id===id)return usuarios[i];return null;}
+function normCod(v){return String(v||'').toLowerCase().replace(/[^a-z0-9._-]/g,'').slice(0,20);}
+function findByCodigo(v){
+  var c=normCod(v);if(!c)return null;
+  for(var i=0;i<usuarios.length;i++)if(normCod(usuarios[i].codigo)===c)return usuarios[i];
+  var n=norm(String(v||'')).trim();
+  for(var j=0;j<usuarios.length;j++)if(!usuarios[j].codigo&&norm(usuarios[j].nombre).trim()===n)return usuarios[j];
+  return null;
+}
+function siguienteCodigo(){
+  var max=100;usuarios.forEach(function(u){var n=parseInt(u.codigo,10);if(n>max&&String(n)===String(u.codigo))max=n;});
+  return String(max+1);
+}
+function localesOrd(){return locales.slice().sort(function(a,b){return (a.orden||0)-(b.orden||0);});}
+function nomLocalId(id){var l=findLocal(id);return l?l.nombre:(id==='admin'?'Administración':(id==='todas'?'Todas las sucursales':''));}
+function uid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function claveGuardada(){return !!(config.length&&config[0].claveHash);}
+function claveHash(p){return pinHash('clave',norm(p).trim().replace(/\s+/g,' '));}
+function pinOk(p){return typeof p==='string'&&p.length>=4&&p.length<=20;}
+function pinHash(id,pin){
+  var txt='gsm:'+id+':'+pin;
+  try{
+    if(window.crypto&&window.crypto.subtle&&window.TextEncoder){
+      return window.crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt)).then(function(b){
+        return Array.prototype.map.call(new Uint8Array(b),function(x){return ('0'+x.toString(16)).slice(-2);}).join('');
+      });
+    }
+  }catch(e){}
+  var h=5381;for(var i=0;i<txt.length;i++)h=((h<<5)+h+txt.charCodeAt(i))|0;
+  return Promise.resolve('x'+(h>>>0).toString(16));
+}
+function guardarSesion(u){try{localStorage.setItem('gsm_sesion_v1',JSON.stringify({id:u.id}));}catch(e){}}
+function borrarSesion(){try{localStorage.removeItem('gsm_sesion_v1');}catch(e){}}
+function cerrarSesion(){
+  sesion=null;borrarSesion();cerrarPanel();lgKey='';lgOwner=false;lgOlvide=false;vista='dash';
+  evaluarAcceso();
+}
+function renderCabecera(){
+  $('#who').textContent=sesion?(sesion.nombre+' · '+(esAdmin()?'Administrador':(esTecnico()?'Técnico · ':'')+nomLocalId(sesion.localId))):'';
+  $('#btnAdmin').hidden=!esAdmin();
+  $('#btnTec').hidden=!puedeTecnico();
+  aplicarVista();
+  $('#btnProvs').hidden=!esAdmin();
+  $('#btnExportar').hidden=!(esAdmin()&&descargas);
+  $('#btnSalir').hidden=!sesion;$('#btnPass').hidden=!sesion;
+}
+function renderLocalSel(){
+  var sel=$('#selLocal');
+  sel.innerHTML='<option value="todos">Todos los locales</option>'+localesOrd().map(function(l){return '<option value="'+esc(l.id)+'">'+esc(l.nombre)+'</option>';}).join('');
+  sel.value=localFiltro;
+  if(sel.value!==localFiltro){localFiltro='todos';sel.value='todos';}
+}
+function migrarLocales(){
+  if(migrado||!esAdmin())return;migrado=true;
+  var nuevos={loc1:['T','Taniperla'],loc2:['ST','Santa Elena'],loc3:['C','Crucero']};
+  locales.forEach(function(l,i){
+    var n=nuevos[l.id];
+    if(n&&/^L[123]$/.test(l.codigo||'')&&/^Local [123]$/.test(l.nombre||'')){
+      var nl=Object.assign({},l,{codigo:n[0],nombre:n[1]});upsert(locales,nl);lstore.save(nl);
+    }
+  });
+}
+function evaluarAcceso(){
+  if(locListo&&usrListo){
+    if(!sesion){
+      var rid=null;
+      try{var r=JSON.parse(localStorage.getItem('gsm_sesion_v1')||'null');if(r)rid=r.id;}catch(e){}
+      var u=rid?findUser(rid):null;
+      if(u&&u.activo!==false){sesion=u;localFiltro=(esAdmin()||esTecnico())?'todos':u.localId;}
+    } else {
+      var f=findUser(sesion.id);
+      if(!f||f.activo===false){sesion=null;borrarSesion();cerrarPanel();lgKey='';}
+      else sesion=f;
+    }
+  }
+  migrarLocales();
+  renderLogin();renderCabecera();renderLocalSel();renderTodo();
+  if(modo==='admin')renderAdmin();
+}
+function userOpts(sel){
+  var grupos=localesOrd().map(function(l){return {n:l.nombre,id:l.id};}).concat([{n:'Administración',id:'admin'}]);
+  var h='';
+  grupos.forEach(function(g){
+    var us=usuarios.filter(function(u){return u.localId===g.id&&u.activo!==false;}).sort(function(a,b){return norm(a.nombre).localeCompare(norm(b.nombre));});
+    if(!us.length)return;
+    h+='<optgroup label="'+esc(g.n)+'">'+us.map(function(u){return '<option value="'+esc(u.id)+'"'+(u.id===sel?' selected':'')+'>'+esc(u.nombre)+'</option>';}).join('')+'</optgroup>';
+  });
+  return h||'<option value="">Sin usuarios</option>';
+}
+function cabLogin(sub){return '<div class="lg-head"><h2 id="lgSaludo">¡'+saludoHora()+'!</h2>'+(sub?'<p>'+sub+'</p>':'')+'</div>';}
+var SVG_SOL='<svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><circle cx="24" cy="24" r="8.5" fill="rgba(255,255,255,.22)"/><path d="M24 5v5M24 38v5M5 24h5M38 24h5M10.6 10.6l3.5 3.5M33.9 33.9l3.5 3.5M37.4 10.6l-3.5 3.5M14.1 33.9l-3.5 3.5"/></svg>';
+var SVG_LUNA='<svg viewBox="0 0 48 48" fill="rgba(255,255,255,.22)" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M38 28.5A15.5 15.5 0 0 1 19.5 10 15.5 15.5 0 1 0 38 28.5z"/><path d="M33 8v6M30 11h6" fill="none"/></svg>';
+function esDeDia(){var h=new Date().getHours();return h>=6&&h<19;}
+var _escena='';
+function escenaSVG(){
+  if(_escena)return _escena;
+  var seed=7;function r(){seed=(seed*16807)%2147483647;return seed/2147483647;}
+  var st='';
+  for(var i=0;i<170;i++){
+    var x=r()*800,y=r()*330,rad=r()<.1?1.5:(r()<.4?1:.6),o=(.35+r()*.65).toFixed(2);
+    st+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+rad+'" fill="#fff" opacity="'+o+'"/>';
+  }
+  var tr='';
+  for(var j=0;j<70;j++){
+    var tx=r()*800,th=18+r()*34,ty=520-th*0.4+(r()*40);
+    tr+='<path d="M'+(tx-5).toFixed(1)+' '+(ty+th).toFixed(1)+'L'+tx.toFixed(1)+' '+ty.toFixed(1)+'L'+(tx+5).toFixed(1)+' '+(ty+th).toFixed(1)+'Z" fill="#0a1220"/>';
+  }
+  _escena='<svg class="lg-scene" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+
+   '<defs><linearGradient id="sc-cielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050913"/><stop offset=".55" stop-color="#14224a"/><stop offset="1" stop-color="#3b5f96"/></linearGradient>'+
+   '<radialGradient id="sc-via" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#d4a3c8" stop-opacity=".75"/><stop offset=".45" stop-color="#7d7fc4" stop-opacity=".35"/><stop offset="1" stop-color="#3b5f96" stop-opacity="0"/></radialGradient>'+
+   '<linearGradient id="sc-nieve" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c5d3ee"/><stop offset="1" stop-color="#4a5d86"/></linearGradient>'+
+   '<linearGradient id="sc-m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3a60"/><stop offset="1" stop-color="#0d1630"/></linearGradient>'+
+   '<linearGradient id="sc-suelo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070d1c" stop-opacity="0"/><stop offset=".4" stop-color="#05070d"/></linearGradient>'+
+   '<linearGradient id="sc-m2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a2542"/><stop offset="1" stop-color="#070d1c"/></linearGradient></defs>'+
+   '<rect width="800" height="800" fill="url(#sc-cielo)"/>'+
+   '<g transform="rotate(-32 470 250)"><ellipse cx="470" cy="250" rx="470" ry="95" fill="url(#sc-via)"/><ellipse cx="500" cy="245" rx="300" ry="42" fill="url(#sc-via)" opacity=".8"/></g>'+
+   st+
+   '<path d="M690 120L790 215" stroke="#fff" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round"/><path d="M640 78L690 120" stroke="#fff" stroke-opacity=".25" stroke-width="1.2" stroke-linecap="round"/>'+
+   '<path d="M0 600L120 500L210 560L340 430L440 330L520 405L590 470L690 380L800 470L800 800L0 800Z" fill="url(#sc-m1)"/>'+
+   '<path d="M440 330L395 395L430 380L445 420L470 385L500 392L520 405L486 356Z" fill="url(#sc-nieve)" opacity=".9"/>'+
+   '<path d="M690 380L650 425L680 415L700 445L722 412L750 430L780 440L735 395Z" fill="url(#sc-nieve)" opacity=".85"/>'+
+   '<path d="M0 680L90 610L180 650L300 570L420 660L560 590L700 650L800 600L800 800L0 800Z" fill="url(#sc-m2)"/>'+
+   tr+'<rect y="600" width="800" height="200" fill="url(#sc-suelo)"/></svg>';
+  return _escena;
+}
+function shellLogin(inner){
+  return '<div class="lg-wrap"><section class="lg-form"><div class="lg-mark"><img alt="Logo de GSM Soluciones" src="'+LOGO+'"><div><b>GSM Soluciones</b><small>Control de reparaciones</small></div></div>'+inner+
+    '<p class="lg-foot">GSM Soluciones · Ocosingo, Chiapas<br>Desarrollado por <strong>SYRAM.COM</strong></p></section>'+
+    '<aside class="lg-brand">'+escenaSVG()+'<div class="lg-time"><span id="lgIcono"></span><div><div class="lg-hora" id="lgHora"></div><div class="lg-fecha" id="lgFecha"></div></div></div></aside></div>';
+}
+var lgPeriodo='';
+function tickLogin(){
+  var h=$('#lgHora');if(!h)return;
+  var d=new Date();
+  h.textContent=d.toLocaleTimeString('es-MX',{hour:'numeric',minute:'2-digit'});
+  var f=d.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('#lgFecha').textContent=f.charAt(0).toUpperCase()+f.slice(1);
+  var sal=$('#lgSaludo');if(sal)sal.textContent='¡'+saludoHora()+'!';
+  var p=esDeDia()?'dia':'noche';
+  if(p!==lgPeriodo||!$('#lgIcono').firstChild){lgPeriodo=p;$('#lgIcono').innerHTML=p==='dia'?SVG_SOL:SVG_LUNA;}
+}
+function renderLoginInner(){
+  var L=$('#login'),W=document.querySelector('.wrap');
+  if(sesion){L.hidden=true;W.hidden=false;lgKey='';return;}
+  L.hidden=false;W.hidden=true;
+  var key=[locListo,usrListo,lgFalla,lgOwner,lgOlvide,adminTel(),claveGuardada(),usuarios.map(function(u){return u.id+u.activo+u.localId;}).join(','),locales.map(function(l){return l.id+l.nombre;}).join(',')].join('|');
+  if(key===lgKey)return;lgKey=key;
+  var card=$('#loginCard');
+  if(!locListo||!usrListo){
+    card.innerHTML=cabLogin('')+(lgFalla?'<p class="err" role="alert">No se pudo cargar. Revisa tu conexión y vuelve a abrir el programa.</p>':'<p class="muted" style="text-align:center;margin:0">Cargando…</p>');
+    return;
+  }
+  if(!usuarios.length){
+    card.innerHTML=cabLogin('Configuración inicial')+
+      '<p class="hint" style="text-align:center">Crea el acceso del administrador. Después podrás dar de alta a los cajeros de cada local.</p>'+
+      '<form id="setupForm" novalidate autocomplete="off" style="display:flex;flex-direction:column;gap:12px">'+
+      campo('s-nombre','Tu nombre',''  ,{req:1})+
+      '<div class="campo"><label for="s-cod">Tu usuario</label><input id="s-cod" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" value="admin"><span class="hint">Es lo que escribirás para entrar. Letras o números, sin espacios.</span></div>'+
+      '<div class="campo"><label for="s-pin">Contraseña del administrador (mínimo 4 caracteres)</label><input id="s-pin" type="password" maxlength="20" autocomplete="off"></div>'+
+      '<div class="campo"><label for="s-pin2">Repite la contraseña</label><input id="s-pin2" type="password" maxlength="20" autocomplete="off"></div>'+
+      '<div class="campo"><label for="s-clave">Palabra clave de recuperación</label><input id="s-clave" type="password" autocomplete="off"><span class="hint">Es lo único que permite restablecer tu contraseña si la olvidas. Elígela tú, anótala fuera del programa y no la compartas: nadie podrá verla después.</span></div>'+
+      '<div class="campo"><label for="s-clave2">Repite la palabra clave</label><input id="s-clave2" type="password" autocomplete="off"></div>'+
+      '<div class="campo"><label for="s-tel">Tu WhatsApp (opcional)</label><input id="s-tel" type="tel" inputmode="tel" autocomplete="off" maxlength="16" placeholder="10 dígitos"><span class="hint">A este número llegarán las solicitudes de contraseña de tu equipo.</span></div>'+
+      '<p class="err" id="lgErr" role="alert" hidden></p><button class="btn primary big" type="submit">Crear y entrar</button></form>';
+    return;
+  }
+  if(lgOlvide){
+    card.innerHTML=cabLogin('Solicitar cambio de contraseña')+
+      '<p class="hint" style="text-align:center">'+(adminTel()?'Escribe tu usuario y se abrirá WhatsApp con un mensaje listo para el administrador. Él te dará una contraseña nueva.':'El administrador todavía no configuró su número de WhatsApp. Pídele que lo agregue en «Administrar».')+'</p>'+
+      '<form id="olvideForm" novalidate autocomplete="off" style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="campo"><label for="ol-user">Tu usuario</label><input id="ol-user" type="text" autocapitalize="none" spellcheck="false" maxlength="24" placeholder="Tu usuario"></div>'+
+      '<p class="err" id="lgErr" role="alert" hidden></p><button class="btn primary big" type="submit">Enviar solicitud por WhatsApp</button></form>'+
+      '<a id="olvideLink" class="link" href="#" target="_blank" rel="noopener" hidden>Si no se abrió WhatsApp, toca aquí</a>'+
+      '<button type="button" class="link" data-action="lg-olvide-off">Volver</button>';
+    return;
+  }
+  if(lgOwner){
+    var admins=usuarios.filter(function(u){return u.rol==='admin'&&u.activo!==false;});
+    card.innerHTML=cabLogin('Restablecer contraseña de administrador')+
+      '<p class="hint" style="text-align:center">'+(claveGuardada()?'Escribe la palabra clave que creaste tú. Sin ella no se puede restablecer.':'Todavía no hay palabra clave creada. Un administrador que pueda entrar debe crearla en «Administrar».')+'</p>'+
+      '<form id="ownerForm" novalidate autocomplete="off" style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="campo"><label for="o-clave">Palabra clave</label><input id="o-clave" type="password" autocomplete="off"></div>'+
+      '<div class="campo"><label for="o-user">Administrador</label><select id="o-user">'+admins.map(function(u){return '<option value="'+esc(u.id)+'">'+esc(u.nombre)+'</option>';}).join('')+'</select></div>'+
+      '<div class="campo"><label for="o-pin">Nueva contraseña (mínimo 4 caracteres)</label><input id="o-pin" type="password" maxlength="20" autocomplete="off"></div>'+
+      '<div class="campo"><label for="o-pin2">Repite la nueva contraseña</label><input id="o-pin2" type="password" maxlength="20" autocomplete="off"></div>'+
+      '<p class="err" id="lgErr" role="alert" hidden></p><button class="btn primary big" type="submit">Restablecer contraseña</button></form>'+
+      '<button type="button" class="link" data-action="lg-owner-off">Volver</button>';
+    return;
+  }
+card.innerHTML=cabLogin('Para iniciar, ingresa tus datos.')+
+    '<form id="lgForm" novalidate autocomplete="off">'+
+    '<div class="campo"><label for="lg-user">Usuario</label><input id="lg-user" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="24" placeholder="Tu usuario"></div>'+
+    '<div class="campo"><label for="lg-pin">Contraseña</label><div class="pinbox"><input id="lg-pin" type="password" maxlength="20" autocomplete="current-password" placeholder="Tu contraseña"><button type="button" data-action="ver-pin" aria-label="Mostrar u ocultar la contraseña">Mostrar</button></div></div>'+
+    '<p class="err" id="lgErr" role="alert" hidden></p><button class="btn primary big" type="submit">Entrar</button></form>'+
+    '<button type="button" class="link" data-action="lg-olvide">Olvidé mi contraseña</button>'+
+    '<button type="button" class="link" data-action="lg-owner">Soy administrador: usar mi palabra clave</button>';
+}
+function renderLogin(){
+  var antes=lgKey;
+  renderLoginInner();
+  if(!$('#login').hidden&&lgKey!==antes){
+    var card=$('#loginCard');card.innerHTML=shellLogin(card.innerHTML);lgPeriodo='';tickLogin();
+  }
+}
+function lgError(m){var e=$('#lgErr');if(e){e.hidden=false;e.textContent=m;}}
+function intentarLogin(){
+  var ahora=Date.now();
+  if(ahora<bloqueoHasta){lgError('Demasiados intentos. Espera '+Math.ceil((bloqueoHasta-ahora)/1000)+' segundos.');return;}
+  var cod=$('#lg-user').value.trim(),pin=$('#lg-pin').value.trim();
+  if(!cod){lgError('Escribe tu usuario.');return;}
+  var u=findByCodigo(cod);
+  if(!u||u.activo===false){lgError('Usuario o contraseña incorrectos.');var pp=$('#lg-pin');if(pp)pp.value='';return;}
+  pinHash(u.id,pin).then(function(h){
+    if(h===u.pinHash){
+      intentos=0;sesion=u;guardarSesion(u);localFiltro=(esAdmin()||esTecnico())?'todos':u.localId;lgKey='';
+      evaluarAcceso();if(esTecnico())abrirTecnico();toast(esAdmin()&&cfgListo&&!claveGuardada()?'Bienvenido. Falta crear tu palabra clave en Administrar.':'Bienvenido, '+u.nombre);
+    } else {
+      intentos++;
+      if(intentos>=5){bloqueoHasta=Date.now()+30000;intentos=0;lgError('Demasiados intentos. Espera 30 segundos.');}
+      else lgError('Usuario o contraseña incorrectos.');
+      var p=$('#lg-pin');if(p){p.value='';p.focus();}
+    }
+  });
+}
+function enviarSetup(){
+  var nombre=$('#s-nombre').value.trim(),p1=$('#s-pin').value.trim(),p2=$('#s-pin2').value.trim();
+  if(!nombre){lgError('Falta tu nombre.');return;}
+  var cod=normCod($('#s-cod').value);
+  if(cod.length<2){lgError('Tu usuario debe tener al menos 2 letras o números.');return;}
+  if(!pinOk(p1)){lgError('La contraseña debe tener al menos 4 caracteres.');return;}
+  if(p1!==p2){lgError('Las contraseñas no coinciden.');return;}
+  var c1=$('#s-clave').value,c2=$('#s-clave2').value;
+  if(norm(c1).trim().length<6){lgError('La palabra clave debe tener al menos 6 letras o números.');return;}
+  if(norm(c1).trim()!==norm(c2).trim()){lgError('Las palabras clave no coinciden.');return;}
+  var id=uid('u-');
+  Promise.all([pinHash(id,p1),claveHash(c1)]).then(function(r){
+    var h=r[0];
+    var admin={id:id,nombre:nombre,codigo:cod,rol:'admin',localId:'admin',pinHash:h,activo:true,creado:new Date().toISOString()};
+    var ps=[];
+    var cfg={id:'acceso',claveHash:r[1]};var wt=($('#s-tel')||{value:''}).value.replace(/\D/g,'');if(wt.length>=10)cfg.adminTel=wt;config=[cfg];ps.push(cstore.save(cfg));
+    if(!locales.length){
+      [['loc1','T','Taniperla',1],['loc2','ST','Santa Elena',2],['loc3','C','Crucero',3]].forEach(function(x){
+        var l={id:x[0],codigo:x[1],nombre:x[2],orden:x[3]};upsert(locales,l);ps.push(lstore.save(l));
+      });
+    }
+    upsert(usuarios,admin);ps.push(ustore.save(admin));
+    Promise.all(ps).then(function(){
+      sesion=admin;guardarSesion(admin);localFiltro='todos';lgKey='';evaluarAcceso();toast('Listo. Ya puedes dar de alta a tus cajeros en «Administrar».');
+    }).catch(function(){lgError('No se pudo guardar. Inténtalo de nuevo.');});
+  });
+}
+function adminTel(){return (config.length&&config[0].adminTel)||'';}
+function abrirMiPass(){
+  if(!sesion)return;modo='mipass';
+  $('#sheet').innerHTML='<div class="sheet-head"><div><h2 id="panelTitulo">Cambiar mi contraseña</h2><div class="sub">'+esc(sesion.nombre)+' · usuario '+esc(sesion.codigo||'')+'</div></div><button type="button" class="btn small" data-action="mipass-cancel">Cancelar</button></div>'+
+    '<form id="passform" novalidate autocomplete="off">'+
+    campo('mp-act','Contraseña actual','',{type:'password',full:1,auto:'current-password'})+
+    campo('mp-n1','Contraseña nueva (de 4 a 20 caracteres)','',{type:'password',full:1,auto:'new-password',hint:'Puedes usar letras, números y símbolos. Elígela a tu manera.'})+
+    campo('mp-n2','Repite la contraseña nueva','',{type:'password',full:1,auto:'new-password'})+
+    '<p class="err" id="mpErr" role="alert" hidden></p><div class="form-actions"><button type="submit" class="btn primary big">Guardar contraseña</button></div></form>';
+  abrirPanel();
+}
+function guardarMiPass(){
+  var er=$('#mpErr');function fallo(m){er.hidden=false;er.textContent=m;}
+  var a=$('#mp-act').value.trim(),n1=$('#mp-n1').value.trim(),n2=$('#mp-n2').value.trim();
+  if(!a){fallo('Escribe tu contraseña actual.');return;}
+  if(!pinOk(n1)){fallo('La contraseña nueva debe tener de 4 a 20 caracteres.');return;}
+  if(n1!==n2){fallo('Las contraseñas nuevas no coinciden.');return;}
+  if(n1===a){fallo('La nueva debe ser distinta a la actual.');return;}
+  var u=findUser(sesion.id);if(!u)return;
+  pinHash(u.id,a).then(function(h){
+    if(h!==u.pinHash){fallo('Tu contraseña actual no es correcta.');return;}
+    pinHash(u.id,n1).then(function(nh){
+      var n=Object.assign({},u,{pinHash:nh});upsert(usuarios,n);sesion=n;
+      ustore.save(n).then(function(){cerrarPanel();toast('Contraseña actualizada');}).catch(function(){fallo('No se pudo guardar. Inténtalo de nuevo.');});
+    });
+  });
+}
+function guardarAdminTel(){
+  var er=$('#atError');var v=($('#adm-tel').value||'').replace(/\D/g,'');
+  if(v&&v.length<10){er.hidden=false;er.textContent='Escribe los 10 dígitos de tu WhatsApp.';return;}
+  var cfg=Object.assign({},config[0]||{id:'acceso'},{id:'acceso',adminTel:v});config=[cfg];
+  cstore.save(cfg).then(function(){toast(v?'Número guardado':'Número quitado');renderAdmin();}).catch(function(){toast('No se pudo guardar');});
+}
+function enviarOlvide(){
+  var cod=$('#ol-user').value.trim();
+  if(!adminTel()){lgError('El administrador aún no configuró su WhatsApp.');return;}
+  if(!cod){lgError('Escribe tu usuario.');return;}
+  var u=findByCodigo(cod);
+  if(!u||u.activo===false){lgError('No encontramos ese usuario. Revisa cómo lo escribes.');return;}
+  var msg='🔑 *Solicitud de cambio de contraseña*\n\nHola, soy *'+u.nombre+'* (usuario: '+(u.codigo||'—')+').\nOlvidé mi contraseña de GSM Soluciones. ¿Me das una nueva, por favor?';
+  var url=linkWA(adminTel(),msg);
+  var l=$('#olvideLink');if(l){l.href=url;l.hidden=false;}
+  window.open(url,'_blank');
+  var e=$('#lgErr');if(e){e.hidden=false;e.style.color='#6ee7b7';e.textContent='Solicitud lista. Cuando el administrador te dé una contraseña nueva, entra y cámbiala desde «Cambiar mi contraseña».';}
+}
+function enviarOwner(){
+  var ahora=Date.now();
+  if(ahora<bloqueoHasta){lgError('Demasiados intentos. Espera '+Math.ceil((bloqueoHasta-ahora)/1000)+' segundos.');return;}
+  if(!claveGuardada()){lgError('Todavía no hay palabra clave. Un administrador que pueda entrar debe crearla en «Administrar».');return;}
+  var u=findUser($('#o-user').value),p=$('#o-pin').value.trim(),p2=$('#o-pin2').value.trim(),k=$('#o-clave').value;
+  if(!u){lgError('Elige un administrador.');return;}
+  if(!k.trim()){lgError('Escribe la palabra clave.');return;}
+  if(!pinOk(p)){lgError('La nueva contraseña debe tener al menos 4 caracteres.');return;}
+  if(p!==p2){lgError('Las contraseñas no coinciden.');return;}
+  claveHash(k).then(function(h){
+    if(h!==config[0].claveHash){
+      intentos++;
+      if(intentos>=5){bloqueoHasta=Date.now()+60000;intentos=0;lgError('Demasiados intentos. Espera 1 minuto.');}
+      else lgError('Palabra clave incorrecta.');
+      return;
+    }
+    intentos=0;
+    pinHash(u.id,p).then(function(ph){
+      var n=Object.assign({},u,{pinHash:ph});upsert(usuarios,n);
+      ustore.save(n).then(function(){lgOwner=false;lgKey='';lgLocal='admin';evaluarAcceso();toast('Contraseña restablecida. Ya puedes entrar con la nueva.');}).catch(function(){lgError('No se pudo guardar.');});
+    });
+  });
+}
+function guardarClave(){
+  var er=$('#kError');function fallo(m){er.hidden=false;er.textContent=m;}
+  var act=$('#k-actual'),n1=$('#k-nueva').value,n2=$('#k-nueva2').value;
+  if(norm(n1).trim().length<6){fallo('La palabra clave debe tener al menos 6 letras o números.');return;}
+  if(norm(n1).trim()!==norm(n2).trim()){fallo('Las palabras clave no coinciden.');return;}
+  var seguir=function(){
+    claveHash(n1).then(function(h){
+      var cfg=Object.assign({},config[0]||{},{id:'acceso',claveHash:h});config=[cfg];
+      cstore.save(cfg).then(function(){toast('Palabra clave guardada');renderAdmin();}).catch(function(){toast('No se pudo guardar la palabra clave');});
+    });
+  };
+  if(claveGuardada()){
+    if(!act||!act.value.trim()){fallo('Escribe la palabra clave actual.');return;}
+    claveHash(act.value).then(function(h){if(h!==config[0].claveHash)fallo('La palabra clave actual no es correcta.');else seguir();});
+  } else seguir();
+}
+
+/* ---------- panel de administración ---------- */
+function abrirAdmin(){modo='admin';selId=null;userDel=null;locDel=null;renderAdmin();abrirPanel();}
+function renderAdmin(){
+  var h='<div class="sheet-head"><div><h2 id="panelTitulo">Administración</h2><div class="sub">Sucursales, cajeros y técnicos.</div></div><button type="button" class="btn small" data-action="cerrar">Cerrar</button></div>';
+  h+='<div class="sec"><h3>Sucursales</h3><div class="actions"><button type="button" class="btn primary" data-action="loc-nueva">+ Nueva sucursal</button></div><div class="list">'+
+  localesOrd().map(function(l){
+    var nEq=equipos.filter(function(e){return e.localId===l.id;}).length,nCj=usuarios.filter(function(u){return u.localId===l.id;}).length;
+    var conf=locDel===l.id?(nEq||nCj?'<div class="confirm"><p>No se puede eliminar «'+esc(l.nombre)+'»: tiene '+nEq+' equipo(s) y '+nCj+' cajero(s). Puedes editar sus datos en su lugar.</p><div class="actions"><button type="button" class="btn" data-action="loc-del-no">Entendido</button></div></div>':'<div class="confirm"><p>¿Eliminar la sucursal «'+esc(l.nombre)+'»?</p><div class="actions"><button type="button" class="btn danger" data-action="loc-del-si" data-id="'+esc(l.id)+'">Sí, eliminar</button><button type="button" class="btn" data-action="loc-del-no">Cancelar</button></div></div>'):'';
+    return '<div class="prov"><div class="urow"><strong>'+esc(l.nombre)+'</strong><span><span class="pill info">Folio '+esc(l.codigo||'')+'-0001</span></span></div>'+
+      '<span class="muted">'+(l.direccion?esc(l.direccion):'Sin ubicación')+'</span>'+
+      '<span class="muted">'+(l.telefono?'Tel. '+esc(l.telefono):'Sin teléfono')+(l.horario?' · '+esc(l.horario):'')+' · '+nEq+' equipo(s)</span>'+conf+
+      '<div class="actions"><button type="button" class="btn small" data-action="loc-editar" data-id="'+esc(l.id)+'">Editar</button><button type="button" class="btn small danger" data-action="loc-del" data-id="'+esc(l.id)+'">Eliminar</button></div></div>';
+  }).join('')+'</div></div>';
+  h+='<div class="sec"><h3>WhatsApp del administrador</h3><p class="hint">A este número se enviarán las solicitudes cuando alguien olvide su contraseña.</p>'+campo('adm-tel','Número (10 dígitos)',adminTel(),{type:'tel',inputmode:'tel',ph:'Ej. 9191234567',full:1})+'<p class="err" id="atError" role="alert" hidden></p><div class="actions"><button type="button" class="btn" data-action="adm-tel-guardar">Guardar número</button></div></div>';
+  h+='<div class="sec"><h3>Palabra clave de recuperación</h3>'+
+    (claveGuardada()?'<p class="hint">Ya hay una palabra clave guardada y nadie puede verla. Para cambiarla, escribe la actual y la nueva.</p>'+campo('k-actual','Palabra clave actual','',{type:'password'}):'<p class="err">Todavía no hay palabra clave. Créala ahora: es lo único que permite restablecer un PIN de administrador olvidado.</p>')+
+    campo('k-nueva','Nueva palabra clave','',{type:'password'})+campo('k-nueva2','Repite la nueva palabra clave','',{type:'password'})+
+    '<p class="err" id="kError" role="alert" hidden></p><div class="actions"><button type="button" class="btn" data-action="clave-guardar">Guardar palabra clave</button></div></div>';
+  h+='<div class="sec"><h3>Usuarios</h3><div class="actions"><button type="button" class="btn primary" data-action="user-nuevo">+ Nuevo usuario</button></div><div class="list">';
+  var us=usuarios.slice().sort(function(a,b){return (a.rol===b.rol?0:(a.rol==='admin'?-1:1))||norm(nomLocalId(a.localId)).localeCompare(norm(nomLocalId(b.localId)))||norm(a.nombre).localeCompare(norm(b.nombre));});
+  h+=us.map(function(u){
+    var yo=sesion&&u.id===sesion.id;
+    var conf=userDel===u.id?'<div class="confirm"><p>¿Eliminar a '+esc(u.nombre)+'? Los equipos que registró conservan su nombre.</p><div class="actions"><button type="button" class="btn danger" data-action="user-del-si" data-id="'+esc(u.id)+'">Sí, eliminar</button><button type="button" class="btn" data-action="user-del-no">Cancelar</button></div></div>':'';
+    return '<div class="prov"><div class="urow"><strong>'+esc(u.nombre)+(yo?' (tú)':'')+'</strong><span><span class="pill idle" title="Usuario">'+(u.codigo?esc(u.codigo):'sin usuario')+'</span> <span class="pill '+(u.rol==='admin'?'admin':'info')+'">'+(u.rol==='admin'?'Administrador':(u.rol==='tecnico'?'Técnico '+(u.comision!=null&&u.comision!==''?u.comision:30)+'%':'Cajero'))+'</span> '+(u.activo===false?'<span class="pill idle">Inactivo</span>':'')+'</span></div>'+
+      '<span class="muted">'+esc(nomLocalId(u.localId)||'Sin local')+'</span>'+conf+
+      '<div class="actions"><button type="button" class="btn small" data-action="user-editar" data-id="'+esc(u.id)+'">Editar o cambiar contraseña</button>'+
+      (yo?'':'<button type="button" class="btn small" data-action="user-toggle" data-id="'+esc(u.id)+'">'+(u.activo===false?'Activar':'Desactivar')+'</button><button type="button" class="btn small danger" data-action="user-del" data-id="'+esc(u.id)+'">Eliminar</button>')+'</div></div>';
+  }).join('')+'</div></div>';
+  var sh=$('#sheet'),top=sh.scrollTop;sh.innerHTML=h;
+}
+var locDel=null;
+function abrirLocForm(id){
+  modo='locform';selId=id||null;
+  var l=id?findLocal(id):null;l=l||{};
+  $('#sheet').innerHTML='<div class="sheet-head"><div><h2 id="panelTitulo">'+(id?'Editar sucursal':'Nueva sucursal')+'</h2></div><button type="button" class="btn small" data-action="loc-cancel">Cancelar</button></div>'+
+    '<form id="lform" novalidate autocomplete="off"><div class="grid2">'+
+    campo('l-nombre','Nombre de la sucursal',l.nombre||'',{req:1,full:1,ph:'Ej. Taniperla'})+
+    campo('l-codigo','Letra del folio',l.codigo||'',{req:1,ph:'Ej. T',hint:'1 a 3 letras. Ej. T-0001.'+(id?' Si la cambias, la numeración vuelve a empezar en 0001.':'')})+
+    campo('l-tel','Teléfono / WhatsApp',l.telefono||'',{type:'tel',inputmode:'tel',ph:'10 dígitos'})+
+    campo('l-dir','Ubicación (dirección)',l.direccion||'',{full:1,ph:'Calle, número, colonia o ejido, referencias'})+
+    campo('l-hor','Horario',l.horario||'',{full:1,ph:'Lun a Sáb 9:00 a 19:00'})+
+    '</div><p class="hint">Estos datos salen en el ticket y en los mensajes de WhatsApp de esta sucursal.</p><p class="err" id="lError" role="alert" hidden></p>'+
+    '<div class="form-actions"><button type="submit" class="btn primary big">'+(id?'Guardar cambios':'Crear sucursal')+'</button><button type="button" class="btn ghost big" data-action="loc-cancel">Cancelar</button></div></form>';
+  $('#sheet').scrollTop=0;
+  setTimeout(function(){var c=$('#l-nombre');if(c)c.focus();},50);
+}
+function guardarLoc(){
+  var er=$('#lError');function fallo(m){er.hidden=false;er.textContent=m;}
+  var nombre=$('#l-nombre').value.trim(),cod=$('#l-codigo').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,3);
+  var prev=selId?findLocal(selId):null;
+  if(!nombre){fallo('Falta el nombre de la sucursal.');return;}
+  if(!cod){fallo('Falta la letra del folio (1 a 3 letras).');return;}
+  if(locales.some(function(x){return x.id!==selId&&x.codigo===cod;})){fallo('Otra sucursal ya usa esa letra de folio. Elige otra.');return;}
+  var orden=prev?prev.orden:(locales.reduce(function(m,x){return Math.max(m,x.orden||0);},0)+1);
+  var d=Object.assign({},prev||{},{id:prev?prev.id:uid('l-'),nombre:nombre,codigo:cod,orden:orden,direccion:$('#l-dir').value.trim(),telefono:$('#l-tel').value.trim(),horario:$('#l-hor').value.trim()});
+  upsert(locales,d);
+  lstore.save(d).then(function(){toast(prev?'Sucursal actualizada':'Sucursal creada');}).catch(function(){toast('No se pudo guardar la sucursal');});
+  renderLocalSel();renderCabecera();renderTodo();abrirAdmin();
+}
+function abrirUserForm(id){
+  modo='userform';selId=id||null;
+  var u=id?findUser(id):null;u=u||{};
+  var ls=localesOrd().map(function(l){return '<option value="'+esc(l.id)+'"'+(l.id===u.localId?' selected':'')+'>'+esc(l.nombre)+'</option>';}).join('');
+  $('#sheet').innerHTML='<div class="sheet-head"><div><h2 id="panelTitulo">'+(id?'Editar usuario':'Nuevo usuario')+'</h2></div><button type="button" class="btn small" data-action="user-cancel">Cancelar</button></div>'+
+    '<form id="uform" novalidate autocomplete="off"><div class="grid2">'+
+    campo('u-nombre','Nombre',u.nombre||'',{req:1,full:1,ph:'Ej. María López'})+
+    '<div class="campo"><label for="u-cod">Usuario <span class="req">*</span></label><input id="u-cod" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" value="'+esc(u.codigo||'')+'" placeholder="Ej. maria"><span class="hint">Con este usuario y su contraseña entra a trabajar. Debe ser único.</span></div>'+
+    '<div class="campo"><label for="u-rol">Rol</label><select id="u-rol"><option value="cajero"'+(u.rol!=='admin'&&u.rol!=='tecnico'?' selected':'')+'>Cajero</option><option value="tecnico"'+(u.rol==='tecnico'?' selected':'')+'>Técnico</option><option value="admin"'+(u.rol==='admin'?' selected':'')+'>Administrador</option></select></div>'+
+    '<div class="campo full" id="u-com-box"'+(u.rol==='tecnico'?'':' hidden')+'><label for="u-com">Comisión del técnico (% de la utilidad)</label><input id="u-com" type="number" inputmode="decimal" min="0" max="100" step="any" value="'+esc(u.comision!=null&&u.comision!==''?u.comision:30)+'"><span class="hint">Trabaja en las 3 sucursales: le llegan los equipos de Taniperla, Santa Elena y Crucero. Se le paga este porcentaje de la utilidad de cada reparación (cobro − refacción).</span></div>'+
+    '<div class="campo" id="u-local-box"'+((u.rol==='admin'||u.rol==='tecnico')?' hidden':'')+'><label for="u-local">Local del cajero</label><select id="u-local">'+ls+'</select></div>'+
+    '<div class="campo full"><label for="u-pin">Contraseña (mínimo 4 caracteres)'+(id?'':' <span class="req">*</span>')+'</label><input id="u-pin" type="password" maxlength="20" autocomplete="new-password" placeholder="'+(id?'Déjalo vacío para no cambiarlo':'')+'"><span class="hint">Cada persona debe usar su propia contraseña y no compartirla.</span></div>'+
+    '</div><p class="err" id="uError" role="alert" hidden></p>'+
+    '<div class="form-actions"><button type="submit" class="btn primary big">'+(id?'Guardar cambios':'Crear usuario')+'</button><button type="button" class="btn ghost big" data-action="user-cancel">Cancelar</button></div></form>';
+  $('#sheet').scrollTop=0;
+  setTimeout(function(){var c=$('#u-nombre');if(c)c.focus();},50);
+}
+function guardarUser(){
+  var er=$('#uError');function fallo(m){er.hidden=false;er.textContent=m;}
+  var nombre=$('#u-nombre').value.trim(),rol=$('#u-rol').value,pin=$('#u-pin').value.trim();
+  var prev=selId?findUser(selId):null;
+  if(!nombre){fallo('Falta el nombre.');return;}
+  var cod=normCod($('#u-cod').value);
+  if(cod.length<2){fallo('El usuario debe tener al menos 2 letras o números.');return;}
+  if(usuarios.some(function(x){return x.id!==selId&&normCod(x.codigo)===cod;})){fallo('Ese usuario ya lo usa otra persona. Elige otro.');return;}
+  var localId=rol==='admin'?'admin':(rol==='tecnico'?'todas':$('#u-local').value);
+  if(rol==='cajero'&&!findLocal(localId)){fallo('Elige el local del cajero.');return;}
+  if((!prev||pin)&&!pinOk(pin)){fallo('La contraseña debe tener al menos 4 caracteres.');return;}
+  if(prev&&prev.rol==='admin'&&rol!=='admin'&&usuarios.filter(function(u){return u.rol==='admin'&&u.activo!==false;}).length<2){fallo('Debe quedar al menos un administrador.');return;}
+  var id=prev?prev.id:uid('u-');
+  var listo=function(h){
+    var d=Object.assign({},prev||{creado:new Date().toISOString(),activo:true},{id:id,nombre:nombre,codigo:cod,rol:rol,localId:localId});
+    if(rol==='tecnico'){var cm=parseFloat($('#u-com').value);d.comision=(isNaN(cm)||cm<0||cm>100)?30:cm;}else delete d.comision;
+    if(h)d.pinHash=h;
+    if(sesion&&sesion.id===id&&rol!=='admin'){fallo('No puedes quitarte a ti mismo el rol de administrador.');return;}
+    upsert(usuarios,d);
+    ustore.save(d).then(function(){toast(prev?'Usuario actualizado':'Usuario creado');}).catch(function(){toast('No se pudo guardar el usuario');});
+    abrirAdmin();
+  };
+  if(pin)pinHash(id,pin).then(listo);else listo(null);
+}
+function alternarUser(id){
+  var u=findUser(id);if(!u||(sesion&&u.id===sesion.id))return;
+  if(u.rol==='admin'&&u.activo!==false&&usuarios.filter(function(x){return x.rol==='admin'&&x.activo!==false;}).length<2){toast('Debe quedar al menos un administrador');return;}
+  var n=Object.assign({},u,{activo:u.activo===false});upsert(usuarios,n);renderAdmin();
+  ustore.save(n).then(function(){toast(n.activo?'Usuario activado':'Usuario desactivado');}).catch(function(){toast('No se pudo guardar');});
+}
+function eliminarUser(id){
+  var u=findUser(id);userDel=null;
+  if(!u||(sesion&&u.id===sesion.id))return;
+  if(u.rol==='admin'&&usuarios.filter(function(x){return x.rol==='admin'&&x.activo!==false;}).length<2){toast('Debe quedar al menos un administrador');renderAdmin();return;}
+  usuarios=usuarios.filter(function(x){return x.id!==id;});renderAdmin();
+  ustore.remove(id).then(function(){toast('Usuario eliminado');}).catch(function(){toast('No se pudo eliminar');});
+}
+document.addEventListener('submit',function(ev){
+  var id=ev.target.id;
+  if(id==='lgForm'){ev.preventDefault();intentarLogin();}
+  else if(id==='setupForm'){ev.preventDefault();enviarSetup();}
+  else if(id==='passform'){ev.preventDefault();guardarMiPass();}
+  else if(id==='olvideForm'){ev.preventDefault();enviarOlvide();}
+  else if(id==='ownerForm'){ev.preventDefault();enviarOwner();}
+  else if(id==='uform'){ev.preventDefault();guardarUser();}
+  else if(id==='lform'){ev.preventDefault();guardarLoc();}
+});
+document.addEventListener('change',function(ev){
+  var id=ev.target.id;
+  if(id==='selLocal'){localFiltro=ev.target.value;renderTodo();}
+  else if(id==='u-rol'){var ulb=$('#u-local-box');if(ulb)ulb.hidden=ev.target.value!=='cajero';var uc=$('#u-com-box');if(uc)uc.hidden=ev.target.value!=='tecnico';}
+  else if(id==='np-cat'||id==='dpz-cat'){var pp=$(id==='np-cat'?'#np-prov':'#dpz-prov');if(pp)pp.value=provDeCat(ev.target.value);}
+  else if(/^pzmap-\d+$/.test(id)){var cat=CATS[+id.split('-')[1]],cf=Object.assign({},pzCfg());cf.mapa=Object.assign({},cf.mapa||{});cf.mapa[cat]=ev.target.value;guardarPz(cf);toast('Proveedor de «'+cat+'» guardado');}
+  else if(/^pzp-/.test(id)){var lz=lineasPz().filter(function(x){return x.id===id.slice(4);})[0];if(lz){guardarPz(Object.assign({},lz,{proveedorId:ev.target.value}));renderPiezas();}}
+  else if(id==='tec-sel'){tecSel=ev.target.value;renderTecnico();}
+  else if(id==='det-tec'){var ed=find(selId);if(ed&&esAdmin()){var tu=findUser(ev.target.value),nn=Object.assign({},ed);if(tu)asignarTec(nn,tu);else{nn.tecnicoId='';nn.tecnicoNombre='';nn.tecnicoPct='';}guardar(nn).then(function(){toast(tu?'Técnico asignado':'Técnico quitado');}).catch(function(){});}}
+  else if(ev.target.hasAttribute&&ev.target.hasAttribute('data-tecref')){var er=find(ev.target.getAttribute('data-tecref'));if(er){var vr=parseFloat(ev.target.value);guardar(Object.assign({},er,{costoRefaccion:isNaN(vr)||vr<0?0:vr})).then(function(){toast('Refacción guardada');}).catch(function(){});}}
+});
+
+/* ---------- arranque ---------- */
+function arrancar(){
+  store.subscribe(function(lista){
+    equipos=lista;cargando=false;errorCarga='';clearTimeout(loadT);renderTodo();
+  },function(e){
+    cargando=false;clearTimeout(loadT);
+    errorCarga=(e&&e.code==='revoked')?'Se perdió el acceso a los datos. Vuelve a abrir el programa.':'Revisa tu conexión e inténtalo de nuevo.';
+    renderTodo();
+  });
+  pstore.subscribe(function(lista){
+    provs=lista;
+    if(modo==='prov')renderProvs();
+    else if(modo==='detalle')renderDetalle();
+  },function(){});
+  lstore.subscribe(function(l){locales=l;locListo=true;evaluarAcceso();},function(){});
+  ustore.subscribe(function(l){usuarios=l;usrListo=true;evaluarAcceso();},function(){});
+  cstore.subscribe(function(l){config=l;cfgListo=true;lgKey='';if(modo==='admin')renderAdmin();else renderLogin();},function(){});
+  pzstore.subscribe(function(l){piezas=l;if(vista==='ped')renderPiezas();else if(modo==='detalle')renderDetalle();},function(){});
+  pdstore.subscribe(function(l){pedidos=l;if(vista==='ped')renderPiezas();},function(){});
+  renderAviso();renderPie();renderTodo();
+  loadT=setTimeout(function(){
+    if(cargando){errorCarga='Tarda más de lo normal en responder. Revisa tu conexión.';renderLista();}
+    if(!locListo||!usrListo){lgFalla=true;lgKey='';renderLogin();}
+  },10000);
+}
+function iniciar(){
+  $('#logoImg').src=LOGO;
+  document.body.insertAdjacentHTML('afterbegin','<div class="galaxia" aria-hidden="true"><div class="estrellas e1"></div><div class="estrellas e2"></div></div>');
+  var sd=$('#side');if(sd)sd.insertAdjacentHTML('afterbegin','<div class="galaxia" aria-hidden="true"><div class="estrellas e1"></div></div>');
+  renderLogin();
+  setInterval(tickLogin,1000);
+  var hayClaude=window.claude&&typeof window.claude.use==='function';
+  var pDb=hayClaude?window.claude.use('db').catch(function(){return null;}):Promise.resolve(null);
+  var pDl=hayClaude?window.claude.use('downloads').catch(function(){return null;}):Promise.resolve(null);
+  var espera=new Promise(function(r){setTimeout(function(){r(null);},8000);});
+  Promise.race([pDb,espera]).then(function(db){
+    store=db?dbStore(db,'equipos'):localStore('gsm_equipos_v1');
+    pstore=db?dbStore(db,'proveedores'):localStore('gsm_proveedores_v1');
+    lstore=db?dbStore(db,'locales'):localStore('gsm_locales_v1');
+    ustore=db?dbStore(db,'usuarios'):localStore('gsm_usuarios_v1');
+    cstore=db?dbStore(db,'config'):localStore('gsm_config_v1');
+    pzstore=db?dbStore(db,'piezas'):localStore('gsm_piezas_v1');
+    pdstore=db?dbStore(db,'pedidos'):localStore('gsm_pedidos_v1');
+    arrancar();
+  });
+  pDl.then(function(d){descargas=d||null;renderAviso();if(modo==='detalle')renderDetalle();});
+}
+iniciar();
+})();
+</script>
