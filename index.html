@@ -2140,9 +2140,10 @@ function enviarSetup(){
 }
 function mostrarCodigoGh(){
   var c=ghCfg();if(!c)return;var cod=ghCodigo(c),box=$('#ghCod');
-  box.innerHTML='<div class="campo"><textarea id="gh-copia" rows="3" readonly></textarea></div>';
-  var ta=$('#gh-copia');ta.value=cod;ta.focus();ta.select();
-  try{navigator.clipboard.writeText(cod).then(function(){toast('Código copiado');},function(){});}catch(e){}
+  var enl=location.origin+location.pathname+'#c='+encodeURIComponent(cod);
+  box.innerHTML='<div class="campo"><label for="gh-enlace">Enlace directo (ábrelo en el otro equipo y entra ya conectado)</label><textarea id="gh-enlace" rows="3" readonly></textarea></div><div class="campo"><label for="gh-copia">Código (por si prefieres pegarlo)</label><textarea id="gh-copia" rows="3" readonly></textarea></div>';
+  $('#gh-copia').value=cod;var ta=$('#gh-enlace');ta.value=enl;ta.focus();ta.select();
+  try{navigator.clipboard.writeText(enl).then(function(){toast('Enlace copiado');},function(){});}catch(e){}
 }
 function adminTel(){return (config.length&&config[0].adminTel)||'';}
 function abrirMiPass(){
@@ -2242,7 +2243,7 @@ function renderAdmin(){
       '<span class="muted">'+(l.telefono?'Tel. '+esc(l.telefono):'Sin teléfono')+(l.horario?' · '+esc(l.horario):'')+' · '+nEq+' equipo(s)</span>'+conf+
       '<div class="actions"><button type="button" class="btn small" data-action="loc-editar" data-id="'+esc(l.id)+'">Editar</button><button type="button" class="btn small danger" data-action="loc-del" data-id="'+esc(l.id)+'">Eliminar</button></div></div>';
   }).join('')+'</div></div>';
-  if(ghCfg()){var gc=ghCfg();h+='<div class="sec"><h3>Conexión con GitHub</h3><p class="hint">Datos guardados en <b>'+esc(gc.o)+'/'+esc(gc.r)+'</b>. Para conectar otro celular o computadora, copia el código y pégalo en la pantalla de conexión de ese dispositivo. <b>No lo compartas con nadie fuera de tu equipo:</b> da acceso a los datos.</p><div id="ghCod"></div><div class="actions"><button type="button" class="btn" data-action="gh-codigo">Mostrar código de conexión</button><button type="button" class="btn danger" data-action="gh-desc">Desconectar este dispositivo</button></div></div>';}
+  if(ghCfg()){var gc=ghCfg();h+='<div class="sec"><h3>Conexión con GitHub</h3><p class="hint">Datos guardados en <b>'+esc(gc.o)+'/'+esc(gc.r)+'</b>. Para conectar otro celular o computadora, abre en ese dispositivo el enlace directo, o pega el código en su pantalla de conexión. <b>No lo compartas con nadie fuera de tu equipo:</b> da acceso a los datos.</p><div id="ghCod"></div><div class="actions"><button type="button" class="btn" data-action="gh-codigo">Mostrar enlace y código de conexión</button><button type="button" class="btn danger" data-action="gh-desc">Desconectar este dispositivo</button></div></div>';}
   h+='<div class="sec"><h3>WhatsApp del administrador</h3><p class="hint">A este número se enviarán las solicitudes cuando alguien olvide su contraseña.</p>'+campo('adm-tel','Número (10 dígitos)',adminTel(),{type:'tel',inputmode:'tel',ph:'Ej. 9191234567',full:1})+'<p class="err" id="atError" role="alert" hidden></p><div class="actions"><button type="button" class="btn" data-action="adm-tel-guardar">Guardar número</button></div></div>';
   h+='<div class="sec"><h3>Palabra clave de recuperación</h3>'+
     (claveGuardada()?'<p class="hint">Ya hay una palabra clave guardada y nadie puede verla. Para cambiarla, escribe la actual y la nueva.</p>'+campo('k-actual','Palabra clave actual','',{type:'password'}):'<p class="err">Todavía no hay palabra clave. Créala ahora: es lo único que permite restablecer un PIN de administrador olvidado.</p>')+
@@ -2403,6 +2404,7 @@ function iniciar(){
   var espera=new Promise(function(r){setTimeout(function(){r(null);},8000);});
   Promise.race([pDb,espera]).then(function(db){
     if(!db){
+      try{var hm=/^#c=(.+)$/.exec(location.hash);if(hm){var hc=ghDeCodigo(decodeURIComponent(hm[1]));if(hc)localStorage.setItem(GHK,JSON.stringify(hc));history.replaceState(null,'',location.pathname+location.search);}}catch(e){}
       var gc=ghCfg();
       if(gc){iniciarConGh(gc);return;}
       var modoLocal=false;try{modoLocal=localStorage.getItem('gsm_modo_local')==='1';}catch(e){}
