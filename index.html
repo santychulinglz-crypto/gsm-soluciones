@@ -845,6 +845,147 @@ function iniciarConGh(cfg){
   lgKey='';arrancar();
 }
 
+/* ---------- almacenamiento en Supabase (nube del taller) ---------- */
+var SB_URL='https://yxvldoygilcrvicwdbxl.supabase.co', SB_KEY='sb_publishable_UDpSNVCiFGOD-fw03LbWDA_xpuWOl80';
+var SBK='gsm_sb_sesion_v1';
+function sbSes(){try{var r=JSON.parse(localStorage.getItem(SBK)||'null');return r&&r.refresh_token?r:null;}catch(e){return null;}}
+function sbGuardaSes(j){
+  var s={access_token:j.access_token,refresh_token:j.refresh_token,exp:Date.now()+Math.max(60,(j.expires_in||3600)-60)*1000,email:(j.user&&j.user.email)||''};
+  try{localStorage.setItem(SBK,JSON.stringify(s));}catch(e){}return s;
+}
+function sbAuth(grant,body){
+  return fetch(SB_URL+'/auth/v1/token?grant_type='+grant,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
+    return r.text().then(function(t){
+      var j=null;try{j=t?JSON.parse(t):null;}catch(e){}
+      if(!r.ok){var e=new Error((j&&(j.error_description||j.msg||j.message))||('HTTP '+r.status));e.status=r.status;throw e;}
+      return j;
+    });
+  });
+}
+function sbPerdida(){mostrarAccesoTaller('Tu acceso venció. Vuelve a entrar con el correo y la contraseña del taller.');}
+function sbCrear(){
+  var ses=sbSes(), enRef=null;
+  function token(){
+    if(!ses)return Promise.reject(Object.assign(new Error('sin sesión'),{status:401}));
+    if(Date.now()<ses.exp)return Promise.resolve(ses.access_token);
+    if(enRef)return enRef;
+    enRef=sbAuth('refresh_token',{refresh_token:ses.refresh_token}).then(function(j){ses=sbGuardaSes(j);enRef=null;return ses.access_token;},function(e){
+      enRef=null;
+      if(e.status===400||e.status===401||e.status===403){try{localStorage.removeItem(SBK);}catch(x){}ses=null;e.status=401;sbPerdida();}
+      throw e;
+    });
+    return enRef;
+  }
+  function api(m,path,body,extra){
+    return token().then(function(t){
+      var h={'apikey':SB_KEY,'Authorization':'Bearer '+t};
+      if(body)h['Content-Type']='application/json';
+      if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});
+      return fetch(SB_URL+'/rest/v1/'+path,{method:m,headers:h,body:body?JSON.stringify(body):undefined,cache:'no-store'});
+    }).then(function(r){
+      return r.text().then(function(t){
+        var j=null;try{j=t?JSON.parse(t):null;}catch(e){}
+        if(!r.ok){var e=new Error((j&&(j.message||j.error))||('HTTP '+r.status));e.status=r.status;throw e;}
+        return j;
+      });
+    });
+  }
+  var cacheK='gsm_sbc_v1', docs={}, last='', listo=false, subs=[], timer=null, enPoll=null, ver=0, np=0;
+  try{var c=JSON.parse(localStorage.getItem(cacheK)||'null');if(c&&c.d){docs=c.d;last=c.l||'';listo=true;}}catch(e){}
+  function persist(){try{localStorage.setItem(cacheK,JSON.stringify({d:docs,l:last}));}catch(e){}}
+  function lista(col){var pre=col+'/',out=[];Object.keys(docs).forEach(function(k){if(k.indexOf(pre)===0)out.push(docs[k]);});return out;}
+  function emit(){subs.forEach(function(s){if(listo)s.f(lista(s.col));});}
+  function pagina(q,fn,off){
+    off=off||0;
+    return api('GET','docs?'+q+'&limit=1000&offset='+off).then(function(rows){rows=rows||[];fn(rows);return rows.length===1000?pagina(q,fn,off+1000):null;});
+  }
+  function poll(){
+    if(enPoll)return enPoll;
+    var v0=ver,nuevos=[];np++;
+    var q='select=coleccion,id,data,actualizado&order=actualizado.asc,coleccion.asc,id.asc'+(last?'&actualizado=gte.'+encodeURIComponent(last):'');
+    enPoll=pagina(q,function(rows){rows.forEach(function(r){nuevos.push(r);});}).then(function(){
+      if(!last||np%4!==0)return null;
+      var ids={};
+      return pagina('select=coleccion,id&order=coleccion.asc,id.asc',function(rows){rows.forEach(function(r){ids[r.coleccion+'/'+r.id]=1;});}).then(function(){return ids;});
+    }).then(function(ids){
+      if(ver!==v0)return;
+      var cambio=!listo,max=last;
+      nuevos.forEach(function(r){
+        var k=r.coleccion+'/'+r.id;
+        if(JSON.stringify(docs[k])!==JSON.stringify(r.data)){docs[k]=r.data;cambio=true;}
+        if(!max||r.actualizado>max)max=r.actualizado;
+      });
+      if(ids)Object.keys(docs).forEach(function(k){if(!ids[k]){delete docs[k];cambio=true;}});
+      last=max;persist();
+      if(cambio){listo=true;emit();}
+    }).then(function(){enPoll=null;},function(e){enPoll=null;subs.forEach(function(s){if(s.err)s.err(e);});});
+    return enPoll;
+  }
+  function arrancarPoll(){
+    if(timer)return;
+    timer=setInterval(function(){if(!document.hidden)poll();},15000);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)poll();});
+    window.addEventListener('online',poll);
+  }
+  var chains={};
+  function enCola(k,fn){var p=(chains[k]||Promise.resolve()).then(fn,fn);chains[k]=p.catch(function(){});return p;}
+  return {
+    store:function(col){
+      return {
+        local:false,sb:true,
+        libre:function(id){
+          if(docs[col+'/'+id])return Promise.resolve(false);
+          return api('GET','docs?coleccion=eq.'+encodeURIComponent(col)+'&id=eq.'+encodeURIComponent(id)+'&select=id').then(function(r){return !(r&&r.length);});
+        },
+        subscribe:function(f,err){
+          var o={col:col,f:f,err:err};subs.push(o);
+          if(listo)setTimeout(function(){f(lista(col));},0);
+          arrancarPoll();poll();
+          return function(){subs=subs.filter(function(x){return x!==o;});};
+        },
+        save:function(d){return enCola(col+'/'+d.id,function(){
+          return api('POST','docs?on_conflict=coleccion,id',{coleccion:col,id:String(d.id),data:d},{'Prefer':'resolution=merge-duplicates,return=minimal'}).then(function(){docs[col+'/'+d.id]=d;ver++;persist();emit();});
+        });},
+        remove:function(id){return enCola(col+'/'+id,function(){
+          return api('DELETE','docs?coleccion=eq.'+encodeURIComponent(col)+'&id=eq.'+encodeURIComponent(id)).then(function(){delete docs[col+'/'+id];ver++;persist();emit();});
+        });}
+      };
+    }
+  };
+}
+function iniciarConSb(){
+  var g=sbCrear();
+  store=g.store('equipos');pstore=g.store('proveedores');lstore=g.store('locales');ustore=g.store('usuarios');cstore=g.store('config');pzstore=g.store('piezas');pdstore=g.store('pedidos');
+  lgKey='';arrancar();
+}
+function sbDesconectar(){
+  try{localStorage.removeItem(SBK);localStorage.removeItem('gsm_sbc_v1');localStorage.removeItem('gsm_sesion_v1');}catch(e){}
+  location.reload();
+}
+function mostrarAccesoTaller(msg){
+  lgKey='taller';
+  var L=$('#login'),W=document.querySelector('.wrap');L.hidden=false;if(W)W.hidden=true;
+  var card=$('#loginCard');
+  card.innerHTML=shellLogin(cabLogin('Acceso del taller')+
+    '<p class="hint" style="text-align:center">Este equipo todavía no está conectado. Escribe el correo y la contraseña del taller. Solo se pide una vez en cada equipo.</p>'+
+    '<form id="sbForm" novalidate autocomplete="off" style="display:flex;flex-direction:column;gap:12px">'+
+    '<div class="campo"><label for="sb-mail">Correo del taller</label><input id="sb-mail" type="email" autocapitalize="none" spellcheck="false" autocomplete="username" placeholder="correo@ejemplo.com"></div>'+
+    '<div class="campo"><label for="sb-pass">Contraseña del taller</label><div class="pinbox"><input id="sb-pass" type="password" autocomplete="current-password" placeholder="Contraseña"><button type="button" data-action="ver-pin" aria-label="Mostrar u ocultar la contraseña">Mostrar</button></div></div>'+
+    '<p class="err" id="lgErr" role="alert"'+(msg?'':' hidden')+'>'+(msg?esc(msg):'')+'</p>'+
+    '<button class="btn primary big" type="submit">Conectar este equipo</button></form>'+
+    '<button type="button" class="link" data-action="gh-local">Usar solo en este dispositivo (sin compartir)</button>');
+  lgPeriodo='';tickLogin();
+}
+function enviarAccesoTaller(){
+  var m=$('#sb-mail').value.trim(),p=$('#sb-pass').value;
+  if(!m||!p){lgError('Escribe el correo y la contraseña del taller.');return;}
+  var b=$('#sbForm button[type=submit]');if(b){b.disabled=true;b.textContent='Conectando…';}
+  sbAuth('password',{email:m,password:p}).then(function(j){sbGuardaSes(j);location.reload();}).catch(function(e){
+    lgError(e&&(e.status===400||e.status===401)?'Correo o contraseña incorrectos.':'No se pudo conectar: '+((e&&e.message)||'revisa tu internet'));
+    if(b){b.disabled=false;b.textContent='Conectar este equipo';}
+  });
+}
+
 function codigoLocal(id){var l=findLocal(id);return l&&l.codigo?l.codigo:'';}
 function folioCandidato(localId,extra){
   var cod=codigoLocal(localId),pre=(cod||'GSM')+'-',max=0;
@@ -949,7 +1090,7 @@ function renderLista(){
   box.innerHTML=lista.map(ticketHTML).join('');
 }
 function renderPie(){
-  $('#pie').textContent=store&&store.local?'':(store&&store.gh?'Los registros se guardan en GitHub y se actualizan solos cada pocos segundos.':'Los registros se guardan en este programa y los ves igual desde el celular o la computadora.');
+  $('#pie').textContent=store&&store.local?'':(store&&store.sb?'Los registros se guardan en la nube del taller y se actualizan solos cada pocos segundos.':store&&store.gh?'Los registros se guardan en GitHub y se actualizan solos cada pocos segundos.':'Los registros se guardan en este programa y los ves igual desde el celular o la computadora.');
 }
 function renderAviso(){
   $('#aviso').innerHTML=(store&&store.local)?'<div class="note">Sin conexión con el almacenamiento compartido: los registros se guardan solo en este navegador. Para compartirlos entre sucursales, conéctalo con GitHub (Administrar → Conexión).</div>':'';
@@ -1797,6 +1938,7 @@ document.addEventListener('click',function(ev){
   else if(a==='mipass')abrirMiPass();
   else if(a==='gh-local'){try{localStorage.setItem('gsm_modo_local','1');}catch(e){}location.reload();}
   else if(a==='gh-codigo')mostrarCodigoGh();
+  else if(a==='sb-desc')sbDesconectar();
   else if(a==='gh-desc')ghDesconectar();
   else if(a==='lg-olvide'){lgOlvide=true;lgOwner=false;lgKey='';renderLogin();}
   else if(a==='lg-olvide-off'){lgOlvide=false;lgKey='';renderLogin();}
@@ -2243,7 +2385,8 @@ function renderAdmin(){
       '<span class="muted">'+(l.telefono?'Tel. '+esc(l.telefono):'Sin teléfono')+(l.horario?' · '+esc(l.horario):'')+' · '+nEq+' equipo(s)</span>'+conf+
       '<div class="actions"><button type="button" class="btn small" data-action="loc-editar" data-id="'+esc(l.id)+'">Editar</button><button type="button" class="btn small danger" data-action="loc-del" data-id="'+esc(l.id)+'">Eliminar</button></div></div>';
   }).join('')+'</div></div>';
-  if(ghCfg()){var gc=ghCfg();h+='<div class="sec"><h3>Conexión con GitHub</h3><p class="hint">Datos guardados en <b>'+esc(gc.o)+'/'+esc(gc.r)+'</b>. Para conectar otro celular o computadora, abre en ese dispositivo el enlace directo, o pega el código en su pantalla de conexión. <b>No lo compartas con nadie fuera de tu equipo:</b> da acceso a los datos.</p><div id="ghCod"></div><div class="actions"><button type="button" class="btn" data-action="gh-codigo">Mostrar enlace y código de conexión</button><button type="button" class="btn danger" data-action="gh-desc">Desconectar este dispositivo</button></div></div>';}
+  if(store&&store.sb){h+='<div class="sec"><h3>Conexión del taller</h3><p class="hint">Este equipo está conectado a la nube del taller. Para cortar el acceso de todos los equipos, cambia la contraseña del usuario del taller en Supabase (Authentication → Users). Aquí puedes desconectar solo este equipo.</p><div class="actions"><button type="button" class="btn danger" data-action="sb-desc">Desconectar este equipo</button></div></div>';}
+  if(store&&store.gh&&ghCfg()){var gc=ghCfg();h+='<div class="sec"><h3>Conexión con GitHub</h3><p class="hint">Datos guardados en <b>'+esc(gc.o)+'/'+esc(gc.r)+'</b>. Para conectar otro celular o computadora, abre en ese dispositivo el enlace directo, o pega el código en su pantalla de conexión. <b>No lo compartas con nadie fuera de tu equipo:</b> da acceso a los datos.</p><div id="ghCod"></div><div class="actions"><button type="button" class="btn" data-action="gh-codigo">Mostrar enlace y código de conexión</button><button type="button" class="btn danger" data-action="gh-desc">Desconectar este dispositivo</button></div></div>';}
   h+='<div class="sec"><h3>WhatsApp del administrador</h3><p class="hint">A este número se enviarán las solicitudes cuando alguien olvide su contraseña.</p>'+campo('adm-tel','Número (10 dígitos)',adminTel(),{type:'tel',inputmode:'tel',ph:'Ej. 9191234567',full:1})+'<p class="err" id="atError" role="alert" hidden></p><div class="actions"><button type="button" class="btn" data-action="adm-tel-guardar">Guardar número</button></div></div>';
   h+='<div class="sec"><h3>Palabra clave de recuperación</h3>'+
     (claveGuardada()?'<p class="hint">Ya hay una palabra clave guardada y nadie puede verla. Para cambiarla, escribe la actual y la nueva.</p>'+campo('k-actual','Palabra clave actual','',{type:'password'}):'<p class="err">Todavía no hay palabra clave. Créala ahora: es lo único que permite restablecer un PIN de administrador olvidado.</p>')+
@@ -2348,6 +2491,7 @@ document.addEventListener('submit',function(ev){
   var id=ev.target.id;
   if(id==='lgForm'){ev.preventDefault();intentarLogin();}
   else if(id==='setupForm'){ev.preventDefault();enviarSetup();}
+  else if(id==='sbForm'){ev.preventDefault();enviarAccesoTaller();}
   else if(id==='ghForm'){ev.preventDefault();enviarConectar();}
   else if(id==='passform'){ev.preventDefault();guardarMiPass();}
   else if(id==='olvideForm'){ev.preventDefault();enviarOlvide();}
@@ -2403,7 +2547,11 @@ function iniciar(){
   var pDl=hayClaude?window.claude.use('downloads').catch(function(){return null;}):Promise.resolve(null);
   var espera=new Promise(function(r){setTimeout(function(){r(null);},8000);});
   Promise.race([pDb,espera]).then(function(db){
-    if(!db){
+    if(!db&&SB_URL&&SB_KEY){
+      if(sbSes()){iniciarConSb();return;}
+      var ml=false;try{ml=localStorage.getItem('gsm_modo_local')==='1';}catch(e){}
+      if(!ml){mostrarAccesoTaller();return;}
+    } else if(!db){
       try{var hm=/^#c=(.+)$/.exec(location.hash);if(hm){var hc=ghDeCodigo(decodeURIComponent(hm[1]));if(hc)localStorage.setItem(GHK,JSON.stringify(hc));history.replaceState(null,'',location.pathname+location.search);}}catch(e){}
       var gc=ghCfg();
       if(gc){iniciarConGh(gc);return;}
